@@ -1,9 +1,9 @@
 {
-  "SerialNumber": 1,
-  "SerialSpeed": 9600,
-  "PeriodDate": 500,
+  "SerialNumber": 5,
+  "SerialSpeed": 57600,
+  "PeriodDate": 1000,
   "ServoAdres": "0",
-  "ICPCONAdres1": "01",
+  "MRJ_Station_number": "0",
   "ICPCONAdres2": "02",
   "BeamDate": [
     [
@@ -68,5 +68,9 @@
     0.5,
     0.5
   ],
-  "SetValue": 1
+  "SetValue": 4,
+  "MotorSpeedIN": 664,
+  "CurrentPosition": 0,
+  "CurrentSpeed": 0,
+  "MRJ_Adress": "0"
 }
