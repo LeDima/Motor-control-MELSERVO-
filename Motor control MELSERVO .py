@@ -32,10 +32,10 @@ class MyThread(QtCore.QThread):
         # self.mysignalerror.emit('2')
         if self.serialnumber!="None" :
             # print(13, self.runing)
-            self.mysignalerror.emit('Serial port ' + str(self.MainDict['SerialNumber']) + ' connected.')
-            print('Serial port', str(self.MainDict['SerialNumber']), 'connected.')
+            self.mysignalerror.emit('Serial port ' + self.MainDict['SerialNumber'] + ' connected.')
+            print('Serial port', self.MainDict['SerialNumber'], 'connected.')
         else:
-            self.mysignalerror.emit('Error opening the port ' + str(self.MainDict['SerialNumber']))
+            self.mysignalerror.emit('Error opening the port ' + self.MainDict['SerialNumber'])
             
         while self.serialnumber!="None":
             if self.runing==1:
@@ -91,7 +91,7 @@ class MyThread(QtCore.QThread):
             with open('ConfigandDate.txt', 'r', encoding='utf-8') as f:
                 self.MainDict = load(f)
         except (OSError, IOError):
-            NewMainDict={'SerialNumber':1
+            NewMainDict={'SerialNumber':'COM1'
                               , 'SerialSpeed':57600
                               , 'PeriodDate':300
                               , 'ServoAdres':'0'
@@ -115,9 +115,10 @@ class MyThread(QtCore.QThread):
         f.close()
 
         try:
-            if platform=="win32": self.serialnumber='COM'+str(self.MainDict['SerialNumber'])
-            elif platform=="linux": self.serialnumber='/dev/ttyS'+str(self.MainDict['SerialNumber'])
-            self.ser = self.open_serial_port(self.serialnumber)
+            self.serialnumber=self.MainDict['SerialNumber']
+            # if platform=="win32": self.serialnumber='COM'+str(self.MainDict['SerialNumber'])
+            # elif platform=="linux": self.serialnumber='/dev/ttyS'+str(self.MainDict['SerialNumber'])
+            self.ser = self.open_serial_port(self.MainDict['SerialNumber'])
         except:
             self.serialnumber='None'
             print('System error')
@@ -769,7 +770,7 @@ class Settings_Dialog(QtWidgets.QDialog):
 
     def SaveSettings(self):
         # print(int(self.comboComNumber.currentText()[-1:]))
-        window.mythread.MainDict['SerialNumber'] = int(self.comboComNumber.currentText()[-1:])
+        window.mythread.MainDict['SerialNumber'] = self.comboComNumber.currentText()
         # window.mythread.MainDict['SerialNumber'] = self.comboComNumber.currentIndex()+1
         window.mythread.MainDict['SerialSpeed'] = int(self.comboComSpeed.currentText())
         window.mythread.MainDict['MRJ_Adress'] = self.TextMRJ_Station_number.displayText()

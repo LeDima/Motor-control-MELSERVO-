@@ -1,5 +1,5 @@
 {
-  "SerialNumber": 5,
+  "SerialNumber": "COM5",
   "SerialSpeed": 57600,
   "PeriodDate": 1000,
   "ServoAdres": "0",
