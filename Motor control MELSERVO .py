@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Apr 19 09:18:09 2018
-
 @author: LeDima
 """
 import sys
@@ -18,54 +16,59 @@ from PyQt5.Qt import QPixmap
 
 # sys._excepthook = sys.excepthook
 
-class MyThread(QtCore.QThread):
-    mysignal = QtCore.pyqtSignal(list)
-    mysignalerror = QtCore.pyqtSignal(str)
+class Thread_RS422_Communication(QtCore.QThread):
+    signal_main = QtCore.pyqtSignal(list)
+    signal_error = QtCore.pyqtSignal(str)
     def __init__(self, parent=None):
         QtCore.QThread.__init__(self, parent)
         self.runing = 1
         self.CreateFileConfigandDate()
         self.i=0.001
-        self.j=0      
+        self.j=0.001      
     def run(self):
         # print(13, self.runing)
-        # self.mysignalerror.emit('2')
-        if self.serialnumber!="None" :
+        # self.signal_error.emit('2')
+        if self.SerialName!="None" :
             # print(13, self.runing)
-            self.mysignalerror.emit('Serial port ' + self.MainDict['SerialNumber'] + ' connected.')
-            print('Serial port', self.MainDict['SerialNumber'], 'connected.')
+            self.signal_error.emit('Serial port ' + self.MainDict['SerialName'] + ' connected.')
+            print('Serial port', self.MainDict['SerialName'], 'connected.')
         else:
-            self.mysignalerror.emit('Error opening the port ' + self.MainDict['SerialNumber'])
+            self.signal_error.emit('Error opening the port ' + self.MainDict['SerialName'])
             
-        while self.serialnumber!="None":
+        while self.SerialName!="None":
+            
             if self.runing==1:
                 # self.startTime = time()
                 # print(self.write_and_read_MRJ_DIO(self.ser))
                 # self.Get_MRJ_statuses()
-                self.Get_Positin_MRJ()
-                self.Get_Speed_MRJ()
+                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
                 print("Current statuses: ",self.Get_MRJ_statuses())
                 # print("Current position: ",self.Get_Positin_MRJ())
                 # print("Servo motor speed: ",self.Get_Speed_MRJ())
-                print("{0:.1f}".format(100*self.j/self.i)+"%")
+                # if(self.i>=500):
+                #     self.i=self.j=0.001
+                #     pass
+                    
+                print("{0:.2f}".format(100*self.j/self.i)+"%")
                 # print(self.j/self.i)
                 # self.dataFloat = [float(data_to_send[i:i+7]) for i in range(56) if i%7==0]
                 # data_to_send = self.write_and_read_MRJ(self.ser, self.MainDict['ICPCONAdres2'])
                 # self.dataFloat += [float(data_to_send[i:i+7]) for i in range(56) if i%7==0]
                 # self.dataFloat = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-                # self.mysignal.emit(self.dataFloat)
+                # self.signal_main.emit(self.dataFloat)
 
 #                print (self.dataFloat)
 #                 print ("Elapsed time: {:.3f} sec".format(time() - self.startTime))
                 self.msleep(self.MainDict['PeriodDate'])  # "Засыпаем" на PeriodDate милисекунды
+                
             elif self.runing==2:
-                self.write_and_read_MRJ(self.ser,"0","92","60","00010807",6)
+                self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00010807",6)
                 self.runing=1
             elif self.runing==3:
-                self.write_and_read_MRJ(self.ser,"0","92","60","00011007",6)    
+                self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00011007",6)    
                 self.runing=1
             elif self.runing==4:
-                self.write_and_read_MRJ(self.ser,"0","92","60","00000000",6)    
+                self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00000000",6)    
                 self.runing=1                 
             elif self.runing==5:
                 # self.write_and_read_MRJ(self.ser,"0","84","0D","3000"+format(self.MainDict['MotorSpeedIN'],'04X'))
@@ -78,9 +81,9 @@ class MyThread(QtCore.QThread):
                 try:
                     self.ser.close()
                 except:
-                    self.mysignalerror.emit('Error opening the port ' + str(self.MainDict['SerialNumber']))
+                    self.signal_error.emit('Error opening the port ' + str(self.MainDict['SerialName']))
                 else:
-                    # self.mysignalerror.emit('port close')
+                    # self.signal_error.emit('port close')
                     print("port close")
                 break
 
@@ -91,9 +94,9 @@ class MyThread(QtCore.QThread):
             with open('ConfigandDate.txt', 'r', encoding='utf-8') as f:
                 self.MainDict = load(f)
         except (OSError, IOError):
-            NewMainDict={'SerialNumber':'COM1'
+            NewMainDict={'SerialName':'COM5'
                               , 'SerialSpeed':57600
-                              , 'PeriodDate':300
+                              , 'PeriodDate':500
                               , 'ServoAdres':'0'
                               , 'MRJ_Station_number':'0'
                               # , 'BeamDate':[[0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
@@ -115,12 +118,12 @@ class MyThread(QtCore.QThread):
         f.close()
 
         try:
-            self.serialnumber=self.MainDict['SerialNumber']
-            # if platform=="win32": self.serialnumber='COM'+str(self.MainDict['SerialNumber'])
-            # elif platform=="linux": self.serialnumber='/dev/ttyS'+str(self.MainDict['SerialNumber'])
-            self.ser = self.open_serial_port(self.MainDict['SerialNumber'])
+            self.SerialName=self.MainDict['SerialName']
+            # if platform=="win32": self.SerialName='COM'+str(self.MainDict['SerialName'])
+            # elif platform=="linux": self.SerialName='/dev/ttyS'+str(self.MainDict['SerialName'])
+            self.ser = self.open_serial_port(self.MainDict['SerialName'])
         except:
-            self.serialnumber='None'
+            self.SerialName='None'
             print('System error')
             self.runing = 0
 
@@ -128,8 +131,8 @@ class MyThread(QtCore.QThread):
     def open_serial_port(self, serial_name: object) -> object:
         try:
             s = Serial(serial_name, self.MainDict['SerialSpeed'],parity=PARITY_EVEN)
-            print(2000*1/self.MainDict['SerialSpeed'])
-            s.timeout = 2000*1/self.MainDict['SerialSpeed'] # 500*1/self.MainDict['SerialSpeed']   #self.MainDict['SerialTimeout'];
+            print(1500*1/self.MainDict['SerialSpeed'])
+            s.timeout = 1500*1/self.MainDict['SerialSpeed'] # 500*1/self.MainDict['SerialSpeed']   #self.MainDict['SerialTimeout'];
         except SerialException:
             print('Error opening the port ',serial_name)
         return s
@@ -146,7 +149,7 @@ class MyThread(QtCore.QThread):
         cmd2=str1.encode("iso-8859-15")+CRC2.encode("iso-8859-15")
         # print(motor+"-"+comand+"-"+dataNo+"-"+dataIN)
         # print(type(cmd2))
-        while((resent==0)and(j<4)):
+        while((resent==0)and(j<5)):
             j+=1
             try:
                 self.i+=1
@@ -213,25 +216,25 @@ class MyThread(QtCore.QThread):
         #     # data = -(data & 0x80000000) | (data & 0x7fffffff)
         # except:
         #     data = None
-        return data
+        return data[3:-3]
     
     def Get_Positin_MRJ(self):
         try:
-            data = int(self.write_and_read_MRJ(self.ser,"0","01","80","",18)[7:-3].decode('utf-8'),16)
+            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","80","",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
         except:
             data = None
         return data
     def Get_Speed_MRJ(self):
         try:
-            data = int(self.write_and_read_MRJ(self.ser,"0","01","86","",18)[7:-3].decode('utf-8'),16)
+            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","86","",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
         except:
             data = None
         return data
     def Set_Speed_MRJ(self):
         try:
-            self.write_and_read_MRJ(self.ser,"0","84","0D","3000"+format(self.MainDict['MotorSpeedIN'],'04X'),6)
+            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"84","0D","3000"+format(self.MainDict['MotorSpeedIN'],'04X'),6)
             print("Set Speed: ",self.MainDict['MotorSpeedIN'])           
         except:
             pass
@@ -247,7 +250,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
       
-        self.setWindowTitle("PyQtScanViver")
+        self.setWindowTitle("MRJ Control")
         self.setGeometry(50, 100, 0, 0)
 
         self.main_widget = QtWidgets.QWidget(self)
@@ -303,7 +306,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         for i in self.ValueDate:
             i.setReadOnly(1)
             i.setText("dY=+5.555")
-            i.setFixedWidth(95)
+            i.setFixedWidth(150)
    
         VBoxTextLeftTop = QtWidgets.QVBoxLayout()
         VBoxTextLeftTop.setContentsMargins(1, 1, 1, 1)
@@ -373,7 +376,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         HBoxText = QtWidgets.QHBoxLayout()
         HBoxText.addLayout(VBoxLeft)
         # HBoxText.addWidget(label)
-        HBoxText.addLayout(VBoxRight)
+        # HBoxText.addLayout(VBoxRight)
 
         VBoxButton = QtWidgets.QVBoxLayout()
 
@@ -513,17 +516,17 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         VBoxMain.addLayout(HBoxErrorSettings)
         # VBoxMain.addWidget(self.TextError, stretch=0)
 
-        self.mythread = MyThread()
+        self.Thread_RS422_Communication = Thread_RS422_Communication()
         
-        self.mythread.mysignal.connect(self.on_change, QtCore.Qt.QueuedConnection)
-        self.mythread.mysignalerror.connect(self.on_error, QtCore.Qt.QueuedConnection)
+        self.Thread_RS422_Communication.signal_main.connect(self.on_change, QtCore.Qt.QueuedConnection)
+        self.Thread_RS422_Communication.signal_error.connect(self.on_error, QtCore.Qt.QueuedConnection)
 
-        self.mythread.start()         
+        self.Thread_RS422_Communication.start()         
 
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
         
-        self.SetValuePre=self.mythread.MainDict['SetValue']
+        self.SetValuePre=self.Thread_RS422_Communication.MainDict['SetValue']
         self.ButtonGET[self.SetValuePre-1].setStyleSheet("font: bold 18px; background-color:#00FF01")
         self.ButtonSET[self.SetValuePre - 1].setStyleSheet("font: bold 18px; background-color:#00FF01")
 
@@ -531,16 +534,16 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             
 #         for i in range(1,11):
 #             for j in range(4):
-#                 self.tableWidget.setItem(i,j+3,QtWidgets.QTableWidgetItem(format(self.mythread.MainDict['BeamDate'][j][i-1], '+.03f')))
-# #                print(self.mythread.MainDict['SetValue'],j)
-#                 if int(self.mythread.MainDict['SetValue'])-1==j:
+#                 self.tableWidget.setItem(i,j+3,QtWidgets.QTableWidgetItem(format(self.Thread_RS422_Communication.MainDict['BeamDate'][j][i-1], '+.03f')))
+# #                print(self.Thread_RS422_Communication.MainDict['SetValue'],j)
+#                 if int(self.Thread_RS422_Communication.MainDict['SetValue'])-1==j:
 #                     self.tableWidget.item(i,j+3).setBackground(QtGui.QColor(0,255,0))
 #                 else:
 #                     pass
 
-        # self.TextComment.insertPlainText(self.mythread.MainDict['Comment'])
+        # self.TextComment.insertPlainText(self.Thread_RS422_Communication.MainDict['Comment'])
         
-        self.Speed_IN_Slider.setSliderPosition(self.mythread.MainDict['MotorSpeedIN'])
+        self.Speed_IN_Slider.setSliderPosition(self.Thread_RS422_Communication.MainDict['MotorSpeedIN'])
 
 
         self.tableWidget.resizeColumnsToContents()
@@ -550,15 +553,31 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.show()
 
     def on_change(self, s):
-        # print(s)
+        print(s)
+        self.ValueDate[0].setText("Position: "+str(s[0]))
+        self.ValueDate[1].setText("Speed: "+str(s[1]))
+        if s[1]>0:
+            self.ST1_ON_Button.setStyleSheet("background-color: #00FF00") #Green
+            self.ST2_ON_Button.setStyleSheet("background-color: #FFFF00") #Yellow
+            self.ST12_OFF_Button.setStyleSheet("background-color: #FFFF00") #Yellow            
+        elif s[1]<0:
+            self.ST1_ON_Button.setStyleSheet("background-color: #FFFF00") #Yellow
+            self.ST2_ON_Button.setStyleSheet("background-color: #00FF00") #Green
+            self.ST12_OFF_Button.setStyleSheet("background-color: #FFFF00") #Yellow 
+        else:
+            self.ST1_ON_Button.setStyleSheet("background-color: #FFFF00") #Yellow
+            self.ST2_ON_Button.setStyleSheet("background-color: #FFFF00") #Yellow
+            self.ST12_OFF_Button.setStyleSheet("background-color: #FF0000") #Red 
+            
+            
 #        with Profiler() as p:
         # print(self.Speed_IN_Slider.value())
         # self.PresentValue=s
         # for i in range(10):
-        #     DiffValues = s[i]-self.mythread.MainDict['BeamDate'][self.mythread.MainDict['SetValue']-1][i]
-        #     if DiffValues<-self.mythread.MainDict['Precision'][i]:
+        #     DiffValues = s[i]-self.Thread_RS422_Communication.MainDict['BeamDate'][self.Thread_RS422_Communication.MainDict['SetValue']-1][i]
+        #     if DiffValues<-self.Thread_RS422_Communication.MainDict['Precision'][i]:
         #         self.ValueDate[i].setStyleSheet("background-color: #00FF00") #Green
-        #     elif DiffValues>+self.mythread.MainDict['Precision'][i]:
+        #     elif DiffValues>+self.Thread_RS422_Communication.MainDict['Precision'][i]:
         #         self.ValueDate[i].setStyleSheet("background-color: #FF0000") #Red
         #     else:
         #         self.ValueDate[i].setStyleSheet("background-color: #FFFF00")  #Yellow
@@ -576,16 +595,16 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.TextError.appendPlainText(s)
 
     def onGetClick(self):
-        #self.mythread.runing=2
-        #self.mythread.wait(1000)
-       # print(self.mythread.MainDict['BeamDate'])
+        #self.Thread_RS422_Communication.runing=2
+        #self.Thread_RS422_Communication.wait(1000)
+       # print(self.Thread_RS422_Communication.MainDict['BeamDate'])
        #  reply = QtWidgets.QMessageBox.question(self, 'Read new value',
        #      "Do you want read SET" + str(self.sender().ButtonNumber) + " value?", QtWidgets.QMessageBox.Yes |
        #      QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.Yes)
        #
        #  if reply == QtWidgets.QMessageBox.Yes:
             self.SetValueNow=self.sender().ButtonNumber
-            self.mythread.MainDict['SetValue']=self.SetValueNow
+            self.Thread_RS422_Communication.MainDict['SetValue']=self.SetValueNow
             
             self.ButtonGET[self.SetValueNow-1].setStyleSheet("font: bold 18px; background-color:#00FF01")
             self.ButtonSET[self.SetValueNow - 1].setStyleSheet("font: bold 18px; background-color:#00FF01")
@@ -594,9 +613,9 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 #             for i in range(10):
             
 #                 for j in range(4):
-#                     self.tableWidget.setItem(i+1,j+3,QtWidgets.QTableWidgetItem(format(self.mythread.MainDict['BeamDate'][j][i], '+.03f')))
-# #                print(self.mythread.MainDict['SetValue'],j)
-#                     if int(self.mythread.MainDict['SetValue'])-1==j:
+#                     self.tableWidget.setItem(i+1,j+3,QtWidgets.QTableWidgetItem(format(self.Thread_RS422_Communication.MainDict['BeamDate'][j][i], '+.03f')))
+# #                print(self.Thread_RS422_Communication.MainDict['SetValue'],j)
+#                     if int(self.Thread_RS422_Communication.MainDict['SetValue'])-1==j:
 #                         self.tableWidget.item(i+1,j+3).setBackground(QtGui.QColor(0,255,0))
 #                     else:
 #                         pass
@@ -617,31 +636,31 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         if reply == QtWidgets.QMessageBox.Yes:
             pass
             # for i in range(10):
-            #     self.mythread.MainDict['BeamDate'][number-1][i]=self.PresentValue[i]
+            #     self.Thread_RS422_Communication.MainDict['BeamDate'][number-1][i]=self.PresentValue[i]
             # self.SaveDate()
 
             # for i in range(1, 11):
             #     for j in range(4):
             #         self.tableWidget.setItem(i, j + 3, QtWidgets.QTableWidgetItem(
-            #             format(self.mythread.MainDict['BeamDate'][j][i - 1], '+.03f')))
-            #         if int(self.mythread.MainDict['SetValue']) - 1 == j:
+            #             format(self.Thread_RS422_Communication.MainDict['BeamDate'][j][i - 1], '+.03f')))
+            #         if int(self.Thread_RS422_Communication.MainDict['SetValue']) - 1 == j:
             #             self.tableWidget.item(i, j + 3).setBackground(QtGui.QColor(0, 255, 0))
         else:
             pass
         
         
     def onST1_ON_Button(self):
-        self.mythread.runing=2
+        self.Thread_RS422_Communication.runing=2
         
     def onST2_ON_Button(self):
-        self.mythread.runing=3
+        self.Thread_RS422_Communication.runing=3
     
     def onST12_OFF_Button(self):
-        self.mythread.runing=4
+        self.Thread_RS422_Communication.runing=4
         
     def onSpeed_IN_Slider(self):
-        self.mythread.runing=5
-        self.mythread.MainDict['MotorSpeedIN']=self.Speed_IN_Slider.value()
+        self.Thread_RS422_Communication.runing=5
+        self.Thread_RS422_Communication.MainDict['MotorSpeedIN']=self.Speed_IN_Slider.value()
         # print(self.Speed_IN_Slider.value())
         
 
@@ -650,25 +669,25 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     #     reply = QtWidgets.QMessageBox.question(self, 'Save comment', "Do you want save comment?", QtWidgets.QMessageBox.Yes |
     #                                            QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.Yes)
     #     if reply == QtWidgets.QMessageBox.Yes:
-    #         self.mythread.MainDict['Comment']=self.TextComment.toPlainText()
+    #         self.Thread_RS422_Communication.MainDict['Comment']=self.TextComment.toPlainText()
     #         # self.TextComment.
-    #         self.TextComment.setPlainText(self.mythread.MainDict['Comment'])
+    #         self.TextComment.setPlainText(self.Thread_RS422_Communication.MainDict['Comment'])
     #         self.SaveDate()
     #     else:
     #         pass
 
     def SaveDate(self):
         with open('ConfigandDate.txt', mode='w', encoding='utf-8') as f:
-            dump(self.mythread.MainDict, f, indent=2)
+            dump(self.Thread_RS422_Communication.MainDict, f, indent=2)
         f.close()  
         
     def closeEvent(self, event):       
 #        print("kjljuohoi")
         self.SaveDate()
-        self.mythread.runing=0
+        self.Thread_RS422_Communication.runing=0
         self.hide()
-        self.mythread.wait(4000)
-        self.mythread.terminate()
+        self.Thread_RS422_Communication.wait(4000)
+        self.Thread_RS422_Communication.terminate()
 
 
     def showSettingsDialog(self):
@@ -686,34 +705,34 @@ class Settings_Dialog(QtWidgets.QDialog):
         self.setWindowTitle("Settings")
         
         comport=self.serial_ports()
-        # print([window.mythread.serialnumber]+comport)
+        # print([window.Thread_RS422_Communication.SerialName]+comport)
         
         form = QtWidgets.QFormLayout()
         self.comboComNumber = QtWidgets.QComboBox()
-        self.comboComNumber.addItems([window.mythread.serialnumber]+comport)
-        # index = self.comboComNumber.findText("COM"+str(window.mythread.MainDict['SerialNumber']), QtCore.Qt.MatchFixedString)
+        self.comboComNumber.addItems([window.Thread_RS422_Communication.SerialName]+comport)
+        # index = self.comboComNumber.findText("COM"+str(window.Thread_RS422_Communication.MainDict['SerialName']), QtCore.Qt.MatchFixedString)
         # self.comboComNumber.setCurrentIndex(index)
 
         # self.comboComNumber.setEditable(False)
 
         self.comboComSpeed = QtWidgets.QComboBox()
         self.comboComSpeed.addItems(['9600', '19200', '38400', '57600', '115200'])
-        index = self.comboComSpeed.findText(str(window.mythread.MainDict['SerialSpeed']),QtCore.Qt.MatchFixedString)
+        index = self.comboComSpeed.findText(str(window.Thread_RS422_Communication.MainDict['SerialSpeed']),QtCore.Qt.MatchFixedString)
         self.comboComSpeed.setCurrentIndex(index)
 
         self.SpinPeriodDate = QtWidgets.QSpinBox()
-        self.SpinPeriodDate.setRange(10,2000)
+        self.SpinPeriodDate.setRange(5,2000)
         self.SpinPeriodDate.setSingleStep(10)
-        self.SpinPeriodDate.setValue(window.mythread.MainDict['PeriodDate'])
+        self.SpinPeriodDate.setValue(window.Thread_RS422_Communication.MainDict['PeriodDate'])
 
         self.TextMRJ_Station_number = QtWidgets.QLineEdit()
-        self.TextMRJ_Station_number.setText(str(window.mythread.MainDict['MRJ_Station_number']))
+        self.TextMRJ_Station_number.setText(str(window.Thread_RS422_Communication.MainDict['MRJ_Station_number']))
 
 
         self.SpinPrecision = QtWidgets.QDoubleSpinBox()
         self.SpinPrecision.setRange(0.01, 2)
         self.SpinPrecision.setSingleStep(0.01)
-        self.SpinPrecision.setValue(window.mythread.MainDict['Precision'][0])
+        self.SpinPrecision.setValue(window.Thread_RS422_Communication.MainDict['Precision'][0])
 
         self.ButtonSaveSettings = QtWidgets.QPushButton("Save settings")
         self.ButtonOut = QtWidgets.QPushButton("Exit")
@@ -770,14 +789,14 @@ class Settings_Dialog(QtWidgets.QDialog):
 
     def SaveSettings(self):
         # print(int(self.comboComNumber.currentText()[-1:]))
-        window.mythread.MainDict['SerialNumber'] = self.comboComNumber.currentText()
-        # window.mythread.MainDict['SerialNumber'] = self.comboComNumber.currentIndex()+1
-        window.mythread.MainDict['SerialSpeed'] = int(self.comboComSpeed.currentText())
-        window.mythread.MainDict['MRJ_Adress'] = self.TextMRJ_Station_number.displayText()
-        window.mythread.MainDict['PeriodDate'] = self.SpinPeriodDate.value() 
-        window.mythread.MainDict['Precision'][0] = self.SpinPrecision.value()
+        window.Thread_RS422_Communication.MainDict['SerialName'] = self.comboComNumber.currentText()
+        # window.Thread_RS422_Communication.MainDict['SerialName'] = self.comboComNumber.currentIndex()+1
+        window.Thread_RS422_Communication.MainDict['SerialSpeed'] = int(self.comboComSpeed.currentText())
+        window.Thread_RS422_Communication.MainDict['MRJ_Adress'] = self.TextMRJ_Station_number.displayText()
+        window.Thread_RS422_Communication.MainDict['PeriodDate'] = self.SpinPeriodDate.value() 
+        window.Thread_RS422_Communication.MainDict['Precision'][0] = self.SpinPrecision.value()
         for i in range(10):
-            window.mythread.MainDict['Precision'][i] = round(self.SpinPrecision.value(),2)
+            window.Thread_RS422_Communication.MainDict['Precision'][i] = round(self.SpinPrecision.value(),2)
         window.SaveDate()
 
         pass
@@ -791,8 +810,8 @@ def my_exception_hook(exctype, value, traceback):
 
 
 if __name__ == "__main__":
-    sys._excepthook = sys.excepthook
-    sys.excepthook = my_exception_hook
+    # sys._excepthook = sys.excepthook
+    # sys.excepthook = my_exception_hook
 
     try:
         app = QtWidgets.QApplication(argv)
@@ -801,5 +820,5 @@ if __name__ == "__main__":
         exit(app.exec_())
     except:
         # print("Exept")
-        window.mythread.terminate()
+        window.Thread_RS422_Communication.terminate()
         
