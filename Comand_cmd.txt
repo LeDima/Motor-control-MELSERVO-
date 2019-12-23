@@ -1,0 +1,2 @@
+cd E:\Proj\IC EBT\UE212\Сервоприводы\Pyton\Motor-control-MELSERVO-
+pyuic5 GUI.ui -o GUI.py

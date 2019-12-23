@@ -178,36 +178,40 @@ class Thread_RS422_Communication(QtCore.QThread):
                             
         return data
     
-    def write_and_read_MRJ_DIO(self, s: object, motor = "0", comand = "12", dataNo = "00",dataIN = "" ) -> object:
+    # def write_and_read_MRJ_DIO(self, s: object, motor = "0", comand = "12", dataNo = "00",dataIN = "" ) -> object:
         
-        data = self.write_and_read_MRJ(self.ser,motor,comand,dataNo,dataIN)
+    #     data = self.write_and_read_MRJ(self.ser,motor,comand,dataNo,dataIN)
         
-        try:
-            bres="{:032b}".format(int((data[3:-3]).decode('utf-8'),16))
-            # print(data)
-            # print(bres)
-            lres = len(bres)
-            bres = ' '.join([bres[i:(i + 4)] for i in range(0, lres, 4)])
-            # print(bres)
-        except:
-            # bres="11111111111111111111111111111111"
-            print(data)
-            print("Error decode")
-        # print("----------")
-        return data
+    #     try:
+    #         bres="{:032b}".format(int((data[3:-3]).decode('utf-8'),16))
+    #         # print(data)
+    #         # print(bres)
+    #         lres = len(bres)
+    #         bres = ' '.join([bres[i:(i + 4)] for i in range(0, lres, 4)])
+    #         # print(bres)
+    #     except:
+    #         # bres="11111111111111111111111111111111"
+    #         print(data)
+    #         print("Error decode")
+    #     # print("----------")
+    #     return data
     
     def Get_MRJ_statuses(self):
         try:
             data = self.write_and_read_MRJ(self.ser,"0","12","00","",14)
-            bres="{:032b}".format(int((data[3:-3]).decode('utf-8'),16))
+            hex_data="{:08X}".format(int((data[3:-3]).decode('utf-8'),16))
+            # bres="{:032b}".format(int((data[3:-3]).decode('utf-8'),16))
             # print(data)
-            # print(bres)
-            lres = len(bres)
-            bres = ' '.join([bres[i:(i + 4)] for i in range(0, lres, 4)])
+            # print(hex_data)
+            # print(0x125)
+            # lres = len(bres)
+            # bres = ' '.join([bres[i:(i + 4)] for i in range(0, lres, 4)])
             # print(bres)
         except:
-            # bres="11111111111111111111111111111111"
+            # data = 0
+            hex_data="00000000"
             # print(data)
+            
             print("Error decode")
          
         
@@ -216,21 +220,21 @@ class Thread_RS422_Communication(QtCore.QThread):
         #     # data = -(data & 0x80000000) | (data & 0x7fffffff)
         # except:
         #     data = None
-        return data[3:-3]
+        return hex_data
     
     def Get_Positin_MRJ(self):
         try:
             data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","80","",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
         except:
-            data = None
+            data = 0
         return data
     def Get_Speed_MRJ(self):
         try:
             data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","86","",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
         except:
-            data = None
+            data = 0
         return data
     def Set_Speed_MRJ(self):
         try:
@@ -254,7 +258,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.setGeometry(50, 100, 0, 0)
 
         self.main_widget = QtWidgets.QWidget(self)
-        self.main_widget.setStyleSheet("background-color:#0080FF")
+        # self.main_widget.setStyleSheet("background-color:#0080FF")
         #self.main_widget.se
         
         VBoxMain = QtWidgets.QVBoxLayout(self.main_widget)
