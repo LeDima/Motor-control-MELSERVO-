@@ -30,7 +30,7 @@
   </property>
   <property name="font">
    <font>
-    <pointsize>12</pointsize>
+    <pointsize>14</pointsize>
    </font>
   </property>
   <property name="windowTitle">
@@ -46,10 +46,10 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>30</y>
+      <x>0</x>
+      <y>0</y>
       <width>741</width>
-      <height>371</height>
+      <height>501</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -58,14 +58,26 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>501</height>
+     </size>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::NoContextMenu</enum>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
     <property name="tabPosition">
-     <enum>QTabWidget::West</enum>
+     <enum>QTabWidget::North</enum>
     </property>
     <property name="tabShape">
      <enum>QTabWidget::Triangular</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <property name="iconSize">
      <size>
@@ -88,15 +100,25 @@
     <property name="tabBarAutoHide">
      <bool>false</bool>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="Tab_Hourglass">
      <attribute name="title">
-      <string>Tab 1</string>
+      <string>Hourglass</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="Tab_Wheel">
+     <attribute name="title">
+      <string>Wheel</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="Tab_Manual">
+     <attribute name="title">
+      <string>Manual</string>
      </attribute>
      <widget class="QPushButton" name="pushButton">
       <property name="geometry">
        <rect>
-        <x>390</x>
-        <y>142</y>
+        <x>170</x>
+        <y>60</y>
         <width>121</width>
         <height>31</height>
        </rect>
@@ -106,35 +128,43 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
-     <attribute name="title">
-      <string>Tab 2</string>
-     </attribute>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>20</y>
+      <width>251</width>
+      <height>481</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Current parameter MRJ</string>
+    </property>
+    <widget class="QLCDNumber" name="lcdNumber">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>40</y>
+       <width>64</width>
+       <height>23</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>50</y>
+       <width>47</width>
+       <height>13</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
     </widget>
    </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1024</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menusdfds">
-    <property name="title">
-     <string>sdfds</string>
-    </property>
-    <addaction name="actionasda"/>
-   </widget>
-   <widget class="QMenu" name="menuasda">
-    <property name="title">
-     <string>asda</string>
-    </property>
-   </widget>
-   <addaction name="menusdfds"/>
-   <addaction name="menuasda"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionasda">
