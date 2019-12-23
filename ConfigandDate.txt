@@ -18,7 +18,7 @@
     0.5
   ],
   "SetValue": 1,
-  "MotorSpeedIN": 0,
+  "MotorSpeedIN": 1830,
   "CurrentPosition": 0,
   "CurrentSpeed": 0,
   "MRJ_Adress": "0"

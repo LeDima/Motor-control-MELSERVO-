@@ -550,7 +550,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Speed_IN_Slider.setSliderPosition(self.Thread_RS422_Communication.MainDict['MotorSpeedIN'])
 
 
-        self.tableWidget.resizeColumnsToContents()
+        # self.tableWidget.resizeColumnsToContents()
 
         self.SettingsButton.clicked.connect(self.showSettingsDialog)
 
