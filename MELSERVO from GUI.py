@@ -27,17 +27,17 @@ class Thread_RS422_Communication(QtCore.QThread):
         self.i=0.001
         self.j=0.001      
     def run(self):
-        # print(13, self.runing)
-        # self.signal_error.emit('2')
         if self.SerialName!="None" :
-            # print(13, self.runing)
             self.signal_error.emit('Serial port ' + self.MainDict['SerialName'] + ' connected.')
             print('Serial port', self.MainDict['SerialName'], 'connected.')
+            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00000000",6)  
+            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"90","00","1EA5",6) #Disabled input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
+            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"8B","00","0001",6) #Jog operation
+            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","11","00005255",6)#Acceleration/deceleration time constant      
         else:
             self.signal_error.emit('Error opening the port ' + self.MainDict['SerialName'])
             
-        while self.SerialName!="None":
-            
+        while self.SerialName!="None":            
             if self.runing==1:
                 # self.startTime = time()
                 # print(self.write_and_read_MRJ_DIO(self.ser))
@@ -61,30 +61,35 @@ class Thread_RS422_Communication(QtCore.QThread):
 #                print (self.dataFloat)
 #                 print ("Elapsed time: {:.3f} sec".format(time() - self.startTime))
                 self.msleep(self.MainDict['PeriodDate'])  # "Засыпаем" на PeriodDate милисекунды
-                
-            elif self.runing==2:
-                self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00010807",6)
-                self.runing=1
+            # elif self.runing==2:
+            #     writereadCOM(ser,"0","90","00","1EA5") #Disabled input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
+            #     writereadCOM(ser,"0","8B","00","0001") 
+            
             elif self.runing==3:
-                self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00011007",6)    
+                self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00010807",6)
                 self.runing=1
             elif self.runing==4:
-                self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00000000",6)    
-                self.runing=1                 
+                self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00011007",6)    
+                self.runing=1
             elif self.runing==5:
+                self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00010007",6)    
+                self.runing=1                 
+            elif self.runing==6:
                 # self.write_and_read_MRJ(self.ser,"0","84","0D","3000"+format(self.MainDict['MotorSpeedIN'],'04X'))
                 # print("Set Speed: ",self.MainDict['MotorSpeedIN']) 
                 self.Set_Speed_MRJ()
                 # self.write_and_read_MRJ(self.ser,"0","92","60","00010007")    
-                self.runing=1
-                          
+                self.runing=1                       
             else:
                 try:
+                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00000000",6)  
+                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","12","1EA5",6) #Clear the test operation acceleration/deceleration time constant.
+                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"8B","00","0000",6) #Test operation mode cancel
+                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"90","10","1EA5",6) #Enables input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
                     self.ser.close()
                 except:
                     self.signal_error.emit('Error opening the port ' + str(self.MainDict['SerialName']))
                 else:
-                    # self.signal_error.emit('port close')
                     print("port close")
                 break
 
@@ -100,10 +105,6 @@ class Thread_RS422_Communication(QtCore.QThread):
                               , 'PeriodDate':500
                               , 'ServoAdres':'0'
                               , 'MRJ_Station_number':'0'
-                              # , 'BeamDate':[[0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
-                              #             , [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
-                              #             , [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
-                              #             , [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]]
                               , 'Comment': 'SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n'
                               , 'Precision': [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
                               , 'SetValue': 1
@@ -115,13 +116,10 @@ class Thread_RS422_Communication(QtCore.QThread):
                     dump(NewMainDict, f, indent=2)
             with open('ConfigandDate.txt', 'r', encoding='utf-8') as f:
                 self.MainDict = load(f)
-        # print(f.read())
         f.close()
 
         try:
             self.SerialName=self.MainDict['SerialName']
-            # if platform=="win32": self.SerialName='COM'+str(self.MainDict['SerialName'])
-            # elif platform=="linux": self.SerialName='/dev/ttyS'+str(self.MainDict['SerialName'])
             self.ser = self.open_serial_port(self.MainDict['SerialName'])
         except:
             self.SerialName='None'
@@ -143,13 +141,11 @@ class Thread_RS422_Communication(QtCore.QThread):
         j=0
         resent=0
         str1="\x01"+motor+comand+"\x02"+dataNo+dataIN+"\x03"
-        # print(str1.encode("utf-8"))
           
         CRC2=format(sum([ord(ss) for ss in str1[1:]]),'02X')[-2:]
-        # print(CRC2[-2:])
+
         cmd2=str1.encode("iso-8859-15")+CRC2.encode("iso-8859-15")
-        # print(motor+"-"+comand+"-"+dataNo+"-"+dataIN)
-        # print(type(cmd2))
+
         while((resent==0)and(j<5)):
             j+=1
             try:
@@ -157,13 +153,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                 s.flushInput()
                 s.write(cmd2)
                 data=s.read(numberchar)
-           
-                # print(data)
-                # print(data[-2:].decode('utf-8'))
-                # print(format(sum(ss for ss in data[1:-2]),'02X')[-2:])
-            
-                # print(data[-2:].decode('utf-8')==format(sum(ss for ss in data[1:-2]),'02X')[-2:])
-                
+                       
                 if(data[-2:].decode('utf-8')==format(sum(ss for ss in data[1:-2]),'02X')[-2:]):
                     resent=1                    
                 else:                    
@@ -174,58 +164,22 @@ class Thread_RS422_Communication(QtCore.QThread):
                 data = None
         if(data==None):
             print("------")
-           
-            
-                            
+                           
         return data
-    
-    # def write_and_read_MRJ_DIO(self, s: object, motor = "0", comand = "12", dataNo = "00",dataIN = "" ) -> object:
-        
-    #     data = self.write_and_read_MRJ(self.ser,motor,comand,dataNo,dataIN)
-        
-    #     try:
-    #         bres="{:032b}".format(int((data[3:-3]).decode('utf-8'),16))
-    #         # print(data)
-    #         # print(bres)
-    #         lres = len(bres)
-    #         bres = ' '.join([bres[i:(i + 4)] for i in range(0, lres, 4)])
-    #         # print(bres)
-    #     except:
-    #         # bres="11111111111111111111111111111111"
-    #         print(data)
-    #         print("Error decode")
-    #     # print("----------")
-    #     return data
-    
+     
     def Get_MRJ_statuses(self):
         try:
             data = self.write_and_read_MRJ(self.ser,"0","12","00","",14)
             hex_data="{:08X}".format(int((data[3:-3]).decode('utf-8'),16))
-            # bres="{:032b}".format(int((data[3:-3]).decode('utf-8'),16))
-            # print(data)
-            # print(hex_data)
-            # print(0x125)
-            # lres = len(bres)
-            # bres = ' '.join([bres[i:(i + 4)] for i in range(0, lres, 4)])
-            # print(bres)
         except:
-            # data = 0
-            hex_data="00000000"
-            # print(data)
-            
+            hex_data="00000000"    
             print("Error decode")
-         
-        
-        # try:
-        #     data = self.write_and_read_MRJ_DIO(self.ser)
-        #     # data = -(data & 0x80000000) | (data & 0x7fffffff)
-        # except:
-        #     data = None
+
         return hex_data
     
     def Get_Positin_MRJ(self):
         try:
-            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","80","",18)[7:-3].decode('utf-8'),16)
+            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","85","",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
         except:
             data = 0
@@ -239,7 +193,7 @@ class Thread_RS422_Communication(QtCore.QThread):
         return data
     def Set_Speed_MRJ(self):
         try:
-            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"84","0D","3000"+format(self.MainDict['MotorSpeedIN'],'04X'),6)
+            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","10",format(self.MainDict['MotorSpeedIN'],'04X'),6)
             print("Set Speed: ",self.MainDict['MotorSpeedIN'])           
         except:
             pass
@@ -257,25 +211,45 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui.ST1_ON_Button.clicked.connect(self.onST1_ON_Button)
         self.ui.ST2_ON_Button.clicked.connect(self.onST2_ON_Button)
         self.ui.ST12_OFF_Button.clicked.connect(self.onST12_OFF_Button)
+        self.ui.Speed_IN_Slider.valueChanged.connect(self.onSpeed_IN_Slider)
         
         
         self.Thread_RS422_Communication = Thread_RS422_Communication()
         self.Thread_RS422_Communication.signal_main.connect(self.on_change, QtCore.Qt.QueuedConnection)
         self.Thread_RS422_Communication.start() 
+        
+        self.ui.comboBoxSerialSpeed.addItems(['9600', '19200', '38400', '57600'])
+        index = self.ui.comboBoxSerialSpeed.findText(str(self.Thread_RS422_Communication.MainDict['SerialSpeed']),QtCore.Qt.MatchFixedString)
+        self.ui.comboBoxSerialSpeed.setCurrentIndex(index)
+        
+        self.ui.comboBoxSerialName.addItems([self.Thread_RS422_Communication.SerialName]+self.serial_ports())
+        
+        self.ui.spinBoxPeriodDate.setValue(self.Thread_RS422_Communication.MainDict['PeriodDate'])
+        
+        self.ui.Speed_IN_Slider.setSliderPosition(self.Thread_RS422_Communication.MainDict['MotorSpeedIN'])
         # self.ui.ButtonClickMe.clicked.connect(self.dispmessage)
         self.show()
         
+    def SaveDate(self):
+        self.Thread_RS422_Communication.MainDict['SerialName'] = self.ui.comboBoxSerialName.currentText()
+        self.Thread_RS422_Communication.MainDict['SerialSpeed'] = int(self.ui.comboBoxSerialSpeed.currentText())
+        self.Thread_RS422_Communication.MainDict['PeriodDate'] = self.ui.spinBoxPeriodDate.value() 
+        with open('ConfigandDate.txt', mode='w', encoding='utf-8') as f:
+            dump(self.Thread_RS422_Communication.MainDict, f, indent=2)
+        f.close()  
+    
+    
     def closeEvent(self, event):       
 #        print("kjljuohoi")
-        # self.SaveDate()
+        self.SaveDate()
         self.Thread_RS422_Communication.runing=0
         self.hide()
-        self.Thread_RS422_Communication.wait(2000)
+        self.Thread_RS422_Communication.wait(4000)
         self.Thread_RS422_Communication.terminate()
         
     def on_change(self, s):
         print(s)
-        self.ui.lcdNumber.display(str(s[0]))
+        self.ui.lcdPosition.display(str(s[0]))
         # self.ui.lcdNumber.SetValue(500)
         # self.ValueDate[0].setText("Position: "+str(s[0]))
         # self.ValueDate[1].setText("Speed: "+str(s[1]))
@@ -296,21 +270,57 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     #     self.ui.labelResponse.setText("Hello "+self.ui.lineEditName.text())
         
     def onST1_ON_Button(self):
-        self.Thread_RS422_Communication.runing=2
+        self.Thread_RS422_Communication.runing=3
         
     def onST2_ON_Button(self):
-        self.Thread_RS422_Communication.runing=3
+        self.Thread_RS422_Communication.runing=4
     
     def onST12_OFF_Button(self):
-        self.Thread_RS422_Communication.runing=4
+        self.Thread_RS422_Communication.runing=5
+        
+    def onSpeed_IN_Slider(self):
+        self.Thread_RS422_Communication.runing=6
+        self.Thread_RS422_Communication.MainDict['MotorSpeedIN']=self.ui.Speed_IN_Slider.value()
+        print(self.ui.Speed_IN_Slider.value())
+        
+    def serial_ports(self):
+        """ Lists serial port names
+    
+            :raises EnvironmentError:
+                On unsupported or unknown platforms
+            :returns:
+                A list of the serial ports available on the system
+        """
+        if sys.platform.startswith('win'):
+            ports = ['COM%s' % (i + 1) for i in range(20)]
+        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+            # this excludes your current terminal "/dev/tty"
+            ports = glob.glob('/dev/tty[A-Za-z]*')
+        elif sys.platform.startswith('darwin'):
+            ports = glob.glob('/dev/tty.*')
+        else:
+            raise EnvironmentError('Unsupported platform')
+    
+        result = []
+        for port in ports:
+            try:
+                s = Serial(port)
+                s.close()
+                result.append(port)
+            except (OSError, SerialException):
+                pass
+        return result
 
 if __name__=="__main__":    
     
-    
-    app = QtWidgets.QApplication(sys.argv)
-    window = ApplicationWindow()
-    window.show()
-    sys.exit(app.exec_())
+    try:
+        app = QtWidgets.QApplication(sys.argv)
+        window = ApplicationWindow()
+        window.show()
+        sys.exit(app.exec_())
+    except:
+        # print("Exept")
+        window.Thread_RS422_Communication.terminate()
     
     # app = QtWidgets.QApplication(argv)
     # window = ApplicationWindow()

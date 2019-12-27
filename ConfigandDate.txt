@@ -1,7 +1,7 @@
 {
   "SerialName": "COM5",
   "SerialSpeed": 57600,
-  "PeriodDate": 500,
+  "PeriodDate": 300,
   "ServoAdres": "0",
   "MRJ_Station_number": "0",
   "Comment": "SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n",
@@ -18,7 +18,7 @@
     0.5
   ],
   "SetValue": 1,
-  "MotorSpeedIN": 1830,
+  "MotorSpeedIN": 326,
   "CurrentPosition": 0,
   "CurrentSpeed": 0,
   "MRJ_Adress": "0"

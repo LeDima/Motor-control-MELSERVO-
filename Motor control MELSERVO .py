@@ -42,14 +42,18 @@ class Thread_RS422_Communication(QtCore.QThread):
                 # print(self.write_and_read_MRJ_DIO(self.ser))
                 # self.Get_MRJ_statuses()
                 self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
-                print("Current statuses: ",self.Get_MRJ_statuses())
+                # print(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","80","",18)[7:-3].decode('utf-8'))
+                # print(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","85","",18)[7:-3].decode('utf-8'))
+                # print(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","8F","",18)[7:-3].decode('utf-8'))
+                # print(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","8E","",18)[7:-3].decode('utf-8'))
+                # print("Current statuses: ",self.Get_MRJ_statuses())
                 # print("Current position: ",self.Get_Positin_MRJ())
                 # print("Servo motor speed: ",self.Get_Speed_MRJ())
                 # if(self.i>=500):
                 #     self.i=self.j=0.001
                 #     pass
-                    
-                print("{0:.2f}".format(100*self.j/self.i)+"%")
+                # print("----------------")
+                # print("{0:.2f}".format(100*self.j/self.i)+"%")
                 # print(self.j/self.i)
                 # self.dataFloat = [float(data_to_send[i:i+7]) for i in range(56) if i%7==0]
                 # data_to_send = self.write_and_read_MRJ(self.ser, self.MainDict['ICPCONAdres2'])
@@ -61,16 +65,16 @@ class Thread_RS422_Communication(QtCore.QThread):
 #                 print ("Elapsed time: {:.3f} sec".format(time() - self.startTime))
                 self.msleep(self.MainDict['PeriodDate'])  # "Засыпаем" на PeriodDate милисекунды
                 
-            elif self.runing==2:
+            elif self.runing==3:
                 self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00010807",6)
                 self.runing=1
-            elif self.runing==3:
+            elif self.runing==4:
                 self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00011007",6)    
                 self.runing=1
-            elif self.runing==4:
+            elif self.runing==5:
                 self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00000000",6)    
                 self.runing=1                 
-            elif self.runing==5:
+            elif self.runing==6:
                 # self.write_and_read_MRJ(self.ser,"0","84","0D","3000"+format(self.MainDict['MotorSpeedIN'],'04X'))
                 # print("Set Speed: ",self.MainDict['MotorSpeedIN']) 
                 self.Set_Speed_MRJ()
@@ -99,10 +103,6 @@ class Thread_RS422_Communication(QtCore.QThread):
                               , 'PeriodDate':500
                               , 'ServoAdres':'0'
                               , 'MRJ_Station_number':'0'
-                              # , 'BeamDate':[[0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
-                              #             , [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
-                              #             , [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
-                              #             , [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]]
                               , 'Comment': 'SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n'
                               , 'Precision': [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
                               , 'SetValue': 1
@@ -147,7 +147,7 @@ class Thread_RS422_Communication(QtCore.QThread):
         CRC2=format(sum([ord(ss) for ss in str1[1:]]),'02X')[-2:]
         # print(CRC2[-2:])
         cmd2=str1.encode("iso-8859-15")+CRC2.encode("iso-8859-15")
-        # print(motor+"-"+comand+"-"+dataNo+"-"+dataIN)
+        print(motor+"-"+comand+"-"+dataNo+"-"+dataIN,end=" ")
         # print(type(cmd2))
         while((resent==0)and(j<5)):
             j+=1
@@ -224,8 +224,14 @@ class Thread_RS422_Communication(QtCore.QThread):
     
     def Get_Positin_MRJ(self):
         try:
-            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","80","",18)[7:-3].decode('utf-8'),16)
-            data = -(data & 0x80000000) | (data & 0x7fffffff)
+            data = self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","8F","",18)[7:-3].decode('utf-8')
+            # print(data)
+            data = int(data,16)
+            # print(data)
+            if data >= 0x80000000:
+                data -= 0x100000000
+            # data = -(data & 0x80000000) | (data & 0x7fffffff)
+            # print(data)
         except:
             data = 0
         return data
@@ -654,16 +660,16 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         
         
     def onST1_ON_Button(self):
-        self.Thread_RS422_Communication.runing=2
+        self.Thread_RS422_Communication.runing=3
         
     def onST2_ON_Button(self):
-        self.Thread_RS422_Communication.runing=3
+        self.Thread_RS422_Communication.runing=4
     
     def onST12_OFF_Button(self):
-        self.Thread_RS422_Communication.runing=4
+        self.Thread_RS422_Communication.runing=5
         
     def onSpeed_IN_Slider(self):
-        self.Thread_RS422_Communication.runing=5
+        self.Thread_RS422_Communication.runing=6
         self.Thread_RS422_Communication.MainDict['MotorSpeedIN']=self.Speed_IN_Slider.value()
         # print(self.Speed_IN_Slider.value())
         
@@ -720,7 +726,7 @@ class Settings_Dialog(QtWidgets.QDialog):
         # self.comboComNumber.setEditable(False)
 
         self.comboComSpeed = QtWidgets.QComboBox()
-        self.comboComSpeed.addItems(['9600', '19200', '38400', '57600', '115200'])
+        self.comboComSpeed.addItems(['9600', '19200', '38400', '57600'])
         index = self.comboComSpeed.findText(str(window.Thread_RS422_Communication.MainDict['SerialSpeed']),QtCore.Qt.MatchFixedString)
         self.comboComSpeed.setCurrentIndex(index)
 
