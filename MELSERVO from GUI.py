@@ -79,7 +79,10 @@ class Thread_RS422_Communication(QtCore.QThread):
                 # print("Set Speed: ",self.MainDict['MotorSpeedIN']) 
                 self.Set_Speed_MRJ()
                 # self.write_and_read_MRJ(self.ser,"0","92","60","00010007")    
-                self.runing=1                       
+                self.runing=1     
+            elif self.runing==7:
+                self.Set_Acceleration_MRJ()  
+                self.runing=1                
             else:
                 try:
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00000000",6)  
@@ -102,13 +105,14 @@ class Thread_RS422_Communication(QtCore.QThread):
         except (OSError, IOError):
             NewMainDict={'SerialName':'COM5'
                               , 'SerialSpeed':57600
-                              , 'PeriodDate':500
+                              , 'PeriodDate':300
                               , 'ServoAdres':'0'
                               , 'MRJ_Station_number':'0'
                               , 'Comment': 'SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n'
                               , 'Precision': [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
                               , 'SetValue': 1
                               , 'MotorSpeedIN':100
+                              , 'MotorAccelerationIN':1000
                               , 'CurrentPosition':0
                               , 'CurrentSpeed':0
                               }
@@ -179,7 +183,7 @@ class Thread_RS422_Communication(QtCore.QThread):
     
     def Get_Positin_MRJ(self):
         try:
-            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","85","",18)[7:-3].decode('utf-8'),16)
+            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","8F","",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
         except:
             data = 0
@@ -191,14 +195,19 @@ class Thread_RS422_Communication(QtCore.QThread):
         except:
             data = 0
         return data
+    def Set_Acceleration_MRJ(self):#Write the acceleration/deceleration time constant [ms] in hexadecimal
+        try:
+            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","11","0000"+format(self.MainDict['MotorAccelerationIN'],'04X'),6)
+            print("Set Acceleration: ",self.MainDict['MotorAccelerationIN'])           
+        except:
+            pass
     def Set_Speed_MRJ(self):
         try:
+            # print("sgsdf")
             self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","10",format(self.MainDict['MotorSpeedIN'],'04X'),6)
             print("Set Speed: ",self.MainDict['MotorSpeedIN'])           
         except:
             pass
-        #     data = None
-        # return data
 
 
 class ApplicationWindow(QtWidgets.QMainWindow):
@@ -211,7 +220,14 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui.ST1_ON_Button.clicked.connect(self.onST1_ON_Button)
         self.ui.ST2_ON_Button.clicked.connect(self.onST2_ON_Button)
         self.ui.ST12_OFF_Button.clicked.connect(self.onST12_OFF_Button)
-        self.ui.Speed_IN_Slider.valueChanged.connect(self.onSpeed_IN_Slider)
+        # self.ui.Speed_IN_Slider.valueChanged.connect(self.onSpeed_IN_Slider)
+        # self.ui.Acceleration_IN_Slider.valueChanged.connect(self.onAcceleration_IN_Slider)
+        self.ui.spinBoxSpeed_IN_100X.valueChanged.connect(self.onSpeed_IN_SpinBox)
+        self.ui.spinBoxSpeed_IN_10X.valueChanged.connect(self.onSpeed_IN_SpinBox)
+        self.ui.spinBoxSpeed_IN_1X.valueChanged.connect(self.onSpeed_IN_SpinBox)
+        self.ui.spinBoxAcceleration_IN_1000X.valueChanged.connect(self.onAcceleration_IN_SpinBox)
+        self.ui.spinBoxAcceleration_IN_100X.valueChanged.connect(self.onAcceleration_IN_SpinBox)
+        self.ui.spinBoxAcceleration_IN_10X.valueChanged.connect(self.onAcceleration_IN_SpinBox)
         
         
         self.Thread_RS422_Communication = Thread_RS422_Communication()
@@ -226,12 +242,29 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         
         self.ui.spinBoxPeriodDate.setValue(self.Thread_RS422_Communication.MainDict['PeriodDate'])
         
-        self.ui.Speed_IN_Slider.setSliderPosition(self.Thread_RS422_Communication.MainDict['MotorSpeedIN'])
+        MotorSpeedIN=self.Thread_RS422_Communication.MainDict['MotorSpeedIN']          
+        self.ui.spinBoxSpeed_IN_100X.setValue(int(MotorSpeedIN/100)*100)
+        self.ui.spinBoxSpeed_IN_10X.setValue(int((MotorSpeedIN-int(MotorSpeedIN/100)*100)/10)*10)    
+        self.ui.spinBoxSpeed_IN_1X.setValue(MotorSpeedIN-int(MotorSpeedIN/10)*10)
+        
+        MotorAccelerationIN=self.Thread_RS422_Communication.MainDict['MotorAccelerationIN'] 
+        self.ui.spinBoxAcceleration_IN_1000X.setValue(int(MotorAccelerationIN/1000)*1000)
+        self.ui.spinBoxAcceleration_IN_100X.setValue(int((MotorAccelerationIN-int(MotorAccelerationIN/1000)*1000)/100)*100)  
+        self.ui.spinBoxAcceleration_IN_10X.setValue(MotorAccelerationIN-int(MotorAccelerationIN/100)*100)  
+        
+       
+        # self.ui.spinBoxSpeed_IN_10X.setValue(int(self.Thread_RS422_Communication.MainDict['MotorSpeedIN']/100)*100)
+        # digits = list(map(int, str(MotorSpeedIN)))
+        # print(digits)
+        
+        # self.ui.Acceleration_IN_Slider.setSliderPosition(self.Thread_RS422_Communication.MainDict['MotorAccelerationIN'])
+        
+        
         # self.ui.ButtonClickMe.clicked.connect(self.dispmessage)
         self.show()
         
     def SaveDate(self):
-        self.Thread_RS422_Communication.MainDict['SerialName'] = self.ui.comboBoxSerialName.currentText()
+        # self.Thread_RS422_Communication.MainDict['SerialName'] = self.ui.comboBoxSerialName.currentText()
         self.Thread_RS422_Communication.MainDict['SerialSpeed'] = int(self.ui.comboBoxSerialSpeed.currentText())
         self.Thread_RS422_Communication.MainDict['PeriodDate'] = self.ui.spinBoxPeriodDate.value() 
         with open('ConfigandDate.txt', mode='w', encoding='utf-8') as f:
@@ -250,6 +283,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     def on_change(self, s):
         print(s)
         self.ui.lcdPosition.display(str(s[0]))
+        self.ui.lcdSpeed.display(str(s[1]))
         # self.ui.lcdNumber.SetValue(500)
         # self.ValueDate[0].setText("Position: "+str(s[0]))
         # self.ValueDate[1].setText("Speed: "+str(s[1]))
@@ -277,11 +311,35 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     
     def onST12_OFF_Button(self):
         self.Thread_RS422_Communication.runing=5
-        
-    def onSpeed_IN_Slider(self):
+    
+    def onSpeed_IN_SpinBox(self):
+        # print("-")
+        value = self.ui.spinBoxSpeed_IN_1X.value()+self.ui.spinBoxSpeed_IN_10X.value()+self.ui.spinBoxSpeed_IN_100X.value()
+        self.ui.lineEdit_Speed_IN.setText(str(value))
         self.Thread_RS422_Communication.runing=6
-        self.Thread_RS422_Communication.MainDict['MotorSpeedIN']=self.ui.Speed_IN_Slider.value()
-        print(self.ui.Speed_IN_Slider.value())
+        self.Thread_RS422_Communication.MainDict['MotorSpeedIN']=value
+        # print(value)
+        # print(self.ui.Speed_IN_Slider.value())    
+    
+    
+    
+    
+    # def onSpeed_IN_Slider(self):
+    #     self.Thread_RS422_Communication.runing=6
+    #     self.Thread_RS422_Communication.MainDict['MotorSpeedIN']=self.ui.Speed_IN_Slider.value()
+    #     print(self.ui.Speed_IN_Slider.value())
+    def onAcceleration_IN_SpinBox(self):
+        value = self.ui.spinBoxAcceleration_IN_1000X.value()+self.ui.spinBoxAcceleration_IN_100X.value()+self.ui.spinBoxAcceleration_IN_10X.value()
+        self.ui.lineEdit_Acceleration_IN.setText(str(value))
+        self.Thread_RS422_Communication.runing=7       
+        self.Thread_RS422_Communication.MainDict['MotorAccelerationIN']=value
+        # print(self.ui.Acceleration_IN_Slider.value())    
+        
+    
+    # def onAcceleration_IN_Slider(self):
+    #     self.Thread_RS422_Communication.runing=7
+    #     self.Thread_RS422_Communication.MainDict['MotorAccelerationIN']=self.ui.Acceleration_IN_Slider.value()
+    #     print(self.ui.Acceleration_IN_Slider.value())
         
     def serial_ports(self):
         """ Lists serial port names
