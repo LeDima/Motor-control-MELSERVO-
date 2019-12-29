@@ -235,6 +235,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        serialname = self.serial_ports()
         
         self.ui.ST1_ON_Button.clicked.connect(self.onST1_ON_Button)
         self.ui.ST2_ON_Button.clicked.connect(self.onST2_ON_Button)
@@ -264,7 +265,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         index = self.ui.comboBoxSerialSpeed.findText(str(self.Thread_RS422_Communication.MainDict['SerialSpeed']),QtCore.Qt.MatchFixedString)
         self.ui.comboBoxSerialSpeed.setCurrentIndex(index)
         
-        self.ui.comboBoxSerialName.addItems([self.Thread_RS422_Communication.SerialName]+self.serial_ports())
+#         self.serial_ports()        
+        self.ui.comboBoxSerialName.addItems([self.Thread_RS422_Communication.SerialName]+serialname)
         
         index = self.ui.comboBoxPeriodDate.findText(str(self.Thread_RS422_Communication.MainDict['PeriodDate']),QtCore.Qt.MatchFixedString)
         self.ui.comboBoxPeriodDate.setCurrentIndex(index)

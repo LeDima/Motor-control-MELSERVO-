@@ -1,5 +1,5 @@
 {
-  "SerialName": "COM5",
+  "SerialName": "/dev/ttyUSB0",
   "SerialSpeed": 57600,
   "PeriodDate": 500,
   "ServoAdres": "0",
@@ -20,5 +20,6 @@
   "SetValue": 1,
   "MotorSpeedIN": 576,
   "CurrentPosition": 0,
-  "CurrentSpeed": 0
+  "CurrentSpeed": 0,
+  "MRJ_Adress": "0"
 }

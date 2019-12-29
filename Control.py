@@ -45,7 +45,7 @@ def serial_ports():
 
 def openPort():
     try:
-        s = serial.Serial("COM5", 57600,parity=serial.PARITY_EVEN, timeout=0.05)  #57600
+        s = serial.Serial("/dev/ttyUSB0", 57600,parity=serial.PARITY_EVEN, timeout=0.05)  #57600
         print('Serial port',"COM7",'connected.')
                 
     except serial.SerialException:
