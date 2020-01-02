@@ -7,6 +7,7 @@ Created on Mon Dec 23 11:38:25 2019
 import sys
 import glob
 
+from functools import partial
 # from sys import argv, exit, platform
 from json import load, dump
 from serial import SerialException, Serial, PARITY_EVEN
@@ -33,7 +34,9 @@ class Thread_RS422_Communication(QtCore.QThread):
             self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00000000",6)  
             self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"90","00","1EA5",6) #Disabled input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
             self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"8B","00","0001",6) #Jog operation
-            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","11","00005255",6)#Acceleration/deceleration time constant      
+            self.Set_Speed_MRJ()
+            self.Set_Acceleration_MRJ()             
+            # self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","11","00005255",6)#Acceleration/deceleration time constant      
         else:
             self.signal_error.emit('Error opening the port ' + self.MainDict['SerialName'])
             
@@ -85,7 +88,9 @@ class Thread_RS422_Communication(QtCore.QThread):
                 self.runing=1                
             else:
                 try:
-                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00000000",6)  
+                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","11","00000700",6)#Acceleration/deceleration time constant
+                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00010007",6) 
+                    self.msleep(2000)
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","12","1EA5",6) #Clear the test operation acceleration/deceleration time constant.
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"8B","00","0000",6) #Test operation mode cancel
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"90","10","1EA5",6) #Enables input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
@@ -110,7 +115,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                               , 'MRJ_Station_number':'0'
                               , 'Comment': 'SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n'
                               , 'Precision': [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-                              , 'SetValue': 1
+                              , 'CurrentTabIndex': 1
                               , 'MotorSpeedIN':100
                               , 'MotorAccelerationIN':1000
                               , 'CurrentPosition':0
@@ -185,6 +190,8 @@ class Thread_RS422_Communication(QtCore.QThread):
         try:
             data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","8F","",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
+            data2= int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","8E","",18)[7:-3].decode('utf-8'),16)
+            data=round(data+data2/131072,2)
         except:
             data = 0
         return data
@@ -216,23 +223,29 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         
-        
         self.ui.ST1_ON_Button.clicked.connect(self.onST1_ON_Button)
         self.ui.ST2_ON_Button.clicked.connect(self.onST2_ON_Button)
         self.ui.ST12_OFF_Button.clicked.connect(self.onST12_OFF_Button)
-        # self.ui.Speed_IN_Slider.valueChanged.connect(self.onSpeed_IN_Slider)
-        # self.ui.Acceleration_IN_Slider.valueChanged.connect(self.onAcceleration_IN_Slider)
-        self.ui.spinBoxSpeed_IN_100X.valueChanged.connect(self.onSpeed_IN_SpinBox)
-        self.ui.spinBoxSpeed_IN_10X.valueChanged.connect(self.onSpeed_IN_SpinBox)
-        self.ui.spinBoxSpeed_IN_1X.valueChanged.connect(self.onSpeed_IN_SpinBox)
-        self.ui.spinBoxAcceleration_IN_1000X.valueChanged.connect(self.onAcceleration_IN_SpinBox)
-        self.ui.spinBoxAcceleration_IN_100X.valueChanged.connect(self.onAcceleration_IN_SpinBox)
-        self.ui.spinBoxAcceleration_IN_10X.valueChanged.connect(self.onAcceleration_IN_SpinBox)
-        
+        self.ui.pushButton_Save_Settings.clicked.connect(self.SaveDate)
+        self.ui.button_Speed_m1.clicked.connect(partial(self.onSpeed_Button,-1))
+        self.ui.button_Speed_m10.clicked.connect(partial(self.onSpeed_Button,-10))
+        self.ui.button_Speed_m100.clicked.connect(partial(self.onSpeed_Button,-100))
+        self.ui.button_Speed_p1.clicked.connect(partial(self.onSpeed_Button,1))
+        self.ui.button_Speed_p10.clicked.connect(partial(self.onSpeed_Button,10))
+        self.ui.button_Speed_p100.clicked.connect(partial(self.onSpeed_Button,100))
+        self.ui.button_Acceleration_m10.clicked.connect(partial(self.onAcceleration_Button,-10))
+        self.ui.button_Acceleration_m100.clicked.connect(partial(self.onAcceleration_Button,-100))
+        self.ui.button_Acceleration_m1000.clicked.connect(partial(self.onAcceleration_Button,-1000))
+        self.ui.button_Acceleration_p10.clicked.connect(partial(self.onAcceleration_Button,10))
+        self.ui.button_Acceleration_p100.clicked.connect(partial(self.onAcceleration_Button,100))
+        self.ui.button_Acceleration_p1000.clicked.connect(partial(self.onAcceleration_Button,1000))
+
         
         self.Thread_RS422_Communication = Thread_RS422_Communication()
         self.Thread_RS422_Communication.signal_main.connect(self.on_change, QtCore.Qt.QueuedConnection)
         self.Thread_RS422_Communication.start() 
+        
+        self.ui.tabWidget.setCurrentIndex(self.Thread_RS422_Communication.MainDict['CurrentTabIndex'])
         
         self.ui.comboBoxSerialSpeed.addItems(['9600', '19200', '38400', '57600'])
         index = self.ui.comboBoxSerialSpeed.findText(str(self.Thread_RS422_Communication.MainDict['SerialSpeed']),QtCore.Qt.MatchFixedString)
@@ -242,15 +255,13 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         
         self.ui.spinBoxPeriodDate.setValue(self.Thread_RS422_Communication.MainDict['PeriodDate'])
         
-        MotorSpeedIN=self.Thread_RS422_Communication.MainDict['MotorSpeedIN']          
-        self.ui.spinBoxSpeed_IN_100X.setValue(int(MotorSpeedIN/100)*100)
-        self.ui.spinBoxSpeed_IN_10X.setValue(int((MotorSpeedIN-int(MotorSpeedIN/100)*100)/10)*10)    
-        self.ui.spinBoxSpeed_IN_1X.setValue(MotorSpeedIN-int(MotorSpeedIN/10)*10)
+        MotorSpeedIN=self.Thread_RS422_Communication.MainDict['MotorSpeedIN']    
+        self.ui.lineEdit_Speed_IN.setText(str(MotorSpeedIN))
+       
         
         MotorAccelerationIN=self.Thread_RS422_Communication.MainDict['MotorAccelerationIN'] 
-        self.ui.spinBoxAcceleration_IN_1000X.setValue(int(MotorAccelerationIN/1000)*1000)
-        self.ui.spinBoxAcceleration_IN_100X.setValue(int((MotorAccelerationIN-int(MotorAccelerationIN/1000)*1000)/100)*100)  
-        self.ui.spinBoxAcceleration_IN_10X.setValue(MotorAccelerationIN-int(MotorAccelerationIN/100)*100)  
+        self.ui.lineEdit_Acceleration_IN.setText(str(MotorAccelerationIN))
+        
         
        
         # self.ui.spinBoxSpeed_IN_10X.setValue(int(self.Thread_RS422_Communication.MainDict['MotorSpeedIN']/100)*100)
@@ -265,6 +276,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         
     def SaveDate(self):
         # self.Thread_RS422_Communication.MainDict['SerialName'] = self.ui.comboBoxSerialName.currentText()
+        self.Thread_RS422_Communication.MainDict['CurrentTabIndex']=self.ui.tabWidget.currentIndex()
         self.Thread_RS422_Communication.MainDict['SerialSpeed'] = int(self.ui.comboBoxSerialSpeed.currentText())
         self.Thread_RS422_Communication.MainDict['PeriodDate'] = self.ui.spinBoxPeriodDate.value() 
         with open('ConfigandDate.txt', mode='w', encoding='utf-8') as f:
@@ -277,12 +289,12 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.SaveDate()
         self.Thread_RS422_Communication.runing=0
         self.hide()
-        self.Thread_RS422_Communication.wait(4000)
+        self.Thread_RS422_Communication.wait(5000)
         self.Thread_RS422_Communication.terminate()
         
     def on_change(self, s):
         print(s)
-        self.ui.lcdPosition.display(str(s[0]))
+        self.ui.lcdPosition.display("{:.2f}".format(s[0]))
         self.ui.lcdSpeed.display(str(s[1]))
         # self.ui.lcdNumber.SetValue(500)
         # self.ValueDate[0].setText("Position: "+str(s[0]))
@@ -311,29 +323,32 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     
     def onST12_OFF_Button(self):
         self.Thread_RS422_Communication.runing=5
+        
     
-    def onSpeed_IN_SpinBox(self):
-        # print("-")
-        value = self.ui.spinBoxSpeed_IN_1X.value()+self.ui.spinBoxSpeed_IN_10X.value()+self.ui.spinBoxSpeed_IN_100X.value()
+    def onSpeed_Button(self,value=0):
+        # print(self.sender().myDate)
+        value = self.Thread_RS422_Communication.MainDict['MotorSpeedIN']+value
+        if value<=0:
+           value=0
+        elif value>=3000:
+            value=3000
         self.ui.lineEdit_Speed_IN.setText(str(value))
+        self.Thread_RS422_Communication.MainDict['MotorSpeedIN']=int(value)
         self.Thread_RS422_Communication.runing=6
-        self.Thread_RS422_Communication.MainDict['MotorSpeedIN']=value
+        
         # print(value)
-        # print(self.ui.Speed_IN_Slider.value())    
-    
-    
-    
-    
-    # def onSpeed_IN_Slider(self):
-    #     self.Thread_RS422_Communication.runing=6
-    #     self.Thread_RS422_Communication.MainDict['MotorSpeedIN']=self.ui.Speed_IN_Slider.value()
-    #     print(self.ui.Speed_IN_Slider.value())
-    def onAcceleration_IN_SpinBox(self):
-        value = self.ui.spinBoxAcceleration_IN_1000X.value()+self.ui.spinBoxAcceleration_IN_100X.value()+self.ui.spinBoxAcceleration_IN_10X.value()
+
+    def onAcceleration_Button(self,value=0):
+        value = self.Thread_RS422_Communication.MainDict['MotorAccelerationIN']+value
+        if value<=500:
+           value=500
+        elif value>=20000:
+            value=20000
         self.ui.lineEdit_Acceleration_IN.setText(str(value))
+        self.Thread_RS422_Communication.MainDict['MotorAccelerationIN']=int(value)
         self.Thread_RS422_Communication.runing=7       
-        self.Thread_RS422_Communication.MainDict['MotorAccelerationIN']=value
-        # print(self.ui.Acceleration_IN_Slider.value())    
+        
+        print(value)    
         
     
     # def onAcceleration_IN_Slider(self):
