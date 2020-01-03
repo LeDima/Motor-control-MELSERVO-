@@ -6,8 +6,8 @@
   "MRJ_Station_number": "0",
   "Comment": "SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n",
   "MRJ_type": "J2S-xCL",
-  "CurrentTabIndex": 4,
-  "MotorSpeedIN": 100,
+  "CurrentTabIndex": 3,
+  "MotorSpeedIN": 700,
   "MotorAccelerationIN": 1000,
   "CurrentPosition": 0,
   "CurrentSpeed": 0
