@@ -1,13 +1,13 @@
 {
-  "SerialName": "/dev/ttyUSB0",
+  "SerialName": "COM5",
   "SerialSpeed": 57600,
-  "PeriodDate": 300,
+  "PeriodDate": 600,
   "ServoAdres": "0",
   "MRJ_Station_number": "0",
   "Comment": "SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n",
   "MRJ_type": "J2S-xCL",
-  "CurrentTabIndex": 4,
-  "MotorSpeedIN": 2000,
+  "CurrentTabIndex": 3,
+  "MotorSpeedIN": 3000,
   "MotorAccelerationIN": 4000,
   "CurrentPosition": 0,
   "CurrentSpeed": 0

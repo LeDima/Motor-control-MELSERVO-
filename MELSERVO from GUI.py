@@ -103,7 +103,11 @@ class Thread_RS422_Communication(QtCore.QThread):
                 try:
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","11","000003E8",6)#Acceleration/deceleration time constant
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00010007",6) 
-                    self.msleep(1500)
+                    self.msleep(500)
+                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00010007",6)
+                    self.msleep(500)
+                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00010007",6)
+                    self.msleep(500)
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","12","1EA5",6) #Clear the test operation acceleration/deceleration time constant.
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"8B","00","0000",6) #Test operation mode cancel
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"90","10","1EA5",6) #Enables input/analog input/pulse train inputs. EMG, LSP and LSN is ON 

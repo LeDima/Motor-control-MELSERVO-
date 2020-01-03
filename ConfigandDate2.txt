@@ -1,5 +1,5 @@
 {
-  "SerialName": "/dev/ttyUSB0",
+  "SerialName": "COM5",
   "SerialSpeed": 57600,
   "PeriodDate": 500,
   "ServoAdres": "0",
