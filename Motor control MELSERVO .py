@@ -22,7 +22,7 @@ class Thread_RS422_Communication(QtCore.QThread):
     def __init__(self, parent=None):
         QtCore.QThread.__init__(self, parent)
         self.runing = 1
-        self.CreateFileConfigandDate()
+        self.CreateFileConfigandDate2()
         self.i=0.001
         self.j=0.001      
     def run(self):
@@ -92,10 +92,10 @@ class Thread_RS422_Communication(QtCore.QThread):
                 break
 
     
-    def CreateFileConfigandDate(self):
+    def CreateFileConfigandDate2(self):
         
         try:
-            with open('ConfigandDate.txt', 'r', encoding='utf-8') as f:
+            with open('ConfigandDate2.txt', 'r', encoding='utf-8') as f:
                 self.MainDict = load(f)
         except (OSError, IOError):
             NewMainDict={'SerialName':'COM5'
@@ -110,9 +110,9 @@ class Thread_RS422_Communication(QtCore.QThread):
                               , 'CurrentPosition':0
                               , 'CurrentSpeed':0
                              }
-            with open('ConfigandDate.txt', mode='w', encoding='utf-8') as f:
+            with open('ConfigandDate2.txt', mode='w', encoding='utf-8') as f:
                     dump(NewMainDict, f, indent=2)
-            with open('ConfigandDate.txt', 'r', encoding='utf-8') as f:
+            with open('ConfigandDate2.txt', 'r', encoding='utf-8') as f:
                 self.MainDict = load(f)
         # print(f.read())
         f.close()
@@ -687,7 +687,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     #         pass
 
     def SaveDate(self):
-        with open('ConfigandDate.txt', mode='w', encoding='utf-8') as f:
+        with open('ConfigandDate2.txt', mode='w', encoding='utf-8') as f:
             dump(self.Thread_RS422_Communication.MainDict, f, indent=2)
         f.close()  
         
