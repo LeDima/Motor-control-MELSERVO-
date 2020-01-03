@@ -5,21 +5,10 @@
   "ServoAdres": "0",
   "MRJ_Station_number": "0",
   "Comment": "SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n",
-  "Precision": [
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5
-  ],
+  "MRJ_type": "J2S-xCL",
   "CurrentTabIndex": 3,
   "MotorSpeedIN": 3000,
-  "MotorAccelerationIN": 3500,
+  "MotorAccelerationIN": 3000,
   "CurrentPosition": 0,
   "CurrentSpeed": 0
 }

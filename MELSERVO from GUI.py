@@ -25,15 +25,28 @@ class Thread_RS422_Communication(QtCore.QThread):
         QtCore.QThread.__init__(self, parent)
         self.runing = 1
         self.CreateFileConfigandDate()
+        
         self.i=0.001
         self.j=0.001      
     def run(self):
         if self.SerialName!="None" :
             self.signal_error.emit('Serial port ' + self.MainDict['SerialName'] + ' connected.')
             print('Serial port', self.MainDict['SerialName'], 'connected.')
-            self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00000000",6)  
+            if self.MainDict['MRJ_type']=='J2S-xCL':
+                self.ABS_counter_cmd="8F"
+                self.One_revolution_position="8E"
+                self.Servo_motor_speed="86"
+            else:
+                self.ABS_counter_cmd="8C"
+                self.One_revolution_position="8B"
+                self.Servo_motor_speed="81"
+                
+                
+                
+            # self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","60","00000000",6)  
             self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"90","00","1EA5",6) #Disabled input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
             self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"8B","00","0001",6) #Jog operation
+            self.msleep(100)
             self.Set_Speed_MRJ()
             self.Set_Acceleration_MRJ()             
             # self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","11","00005255",6)#Acceleration/deceleration time constant      
@@ -46,14 +59,14 @@ class Thread_RS422_Communication(QtCore.QThread):
                 # print(self.write_and_read_MRJ_DIO(self.ser))
                 # self.Get_MRJ_statuses()
                 self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
-                print("Current statuses: ",self.Get_MRJ_statuses())
+                # print("Current statuses: ",self.Get_MRJ_statuses())
                 # print("Current position: ",self.Get_Positin_MRJ())
                 # print("Servo motor speed: ",self.Get_Speed_MRJ())
                 # if(self.i>=500):
                 #     self.i=self.j=0.001
                 #     pass
                     
-                print("{0:.2f}".format(100*self.j/self.i)+"%")
+                # print("{0:.2f}".format(100*self.j/self.i)+"%")
                 # print(self.j/self.i)
                 # self.dataFloat = [float(data_to_send[i:i+7]) for i in range(56) if i%7==0]
                 # data_to_send = self.write_and_read_MRJ(self.ser, self.MainDict['ICPCONAdres2'])
@@ -88,9 +101,9 @@ class Thread_RS422_Communication(QtCore.QThread):
                 self.runing=1                
             else:
                 try:
-                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","11","00000700",6)#Acceleration/deceleration time constant
+                    self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","11","000003E8",6)#Acceleration/deceleration time constant
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"92","00","00010007",6) 
-                    self.msleep(2000)
+                    self.msleep(1500)
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"A0","12","1EA5",6) #Clear the test operation acceleration/deceleration time constant.
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"8B","00","0000",6) #Test operation mode cancel
                     self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"90","10","1EA5",6) #Enables input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
@@ -110,11 +123,11 @@ class Thread_RS422_Communication(QtCore.QThread):
         except (OSError, IOError):
             NewMainDict={'SerialName':'COM5'
                               , 'SerialSpeed':57600
-                              , 'PeriodDate':300
+                              , 'PeriodDate':200
                               , 'ServoAdres':'0'
                               , 'MRJ_Station_number':'0'
                               , 'Comment': 'SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n'
-                              , 'Precision': [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+                              , 'MRJ_type':'J2S-xCL'
                               , 'CurrentTabIndex': 1
                               , 'MotorSpeedIN':100
                               , 'MotorAccelerationIN':1000
@@ -178,7 +191,7 @@ class Thread_RS422_Communication(QtCore.QThread):
      
     def Get_MRJ_statuses(self):
         try:
-            data = self.write_and_read_MRJ(self.ser,"0","12","00","",14)
+            data = self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"12","00","",14)
             hex_data="{:08X}".format(int((data[3:-3]).decode('utf-8'),16))
         except:
             hex_data="00000000"    
@@ -188,16 +201,16 @@ class Thread_RS422_Communication(QtCore.QThread):
     
     def Get_Positin_MRJ(self):
         try:
-            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","8F","",18)[7:-3].decode('utf-8'),16)
+            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01",self.ABS_counter_cmd,"",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
-            data2= int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","8E","",18)[7:-3].decode('utf-8'),16)
+            data2= int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01",self.One_revolution_position,"",18)[7:-3].decode('utf-8'),16)
             data=round(data+data2/131072,2)
         except:
             data = 0
         return data
     def Get_Speed_MRJ(self):
         try:
-            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01","86","",18)[7:-3].decode('utf-8'),16)
+            data = int(self.write_and_read_MRJ(self.ser,self.MainDict['ServoAdres'],"01",self.Servo_motor_speed,"",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
         except:
             data = 0
@@ -226,7 +239,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui.ST1_ON_Button.clicked.connect(self.onST1_ON_Button)
         self.ui.ST2_ON_Button.clicked.connect(self.onST2_ON_Button)
         self.ui.ST12_OFF_Button.clicked.connect(self.onST12_OFF_Button)
-        self.ui.pushButton_Save_Settings.clicked.connect(self.SaveDate)
+        self.ui.pushButton_Save_Settings.clicked.connect(partial(self.SaveDate,1))
         self.ui.button_Speed_m1.clicked.connect(partial(self.onSpeed_Button,-1))
         self.ui.button_Speed_m10.clicked.connect(partial(self.onSpeed_Button,-10))
         self.ui.button_Speed_m100.clicked.connect(partial(self.onSpeed_Button,-100))
@@ -247,17 +260,17 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         
         self.ui.tabWidget.setCurrentIndex(self.Thread_RS422_Communication.MainDict['CurrentTabIndex'])
         
-        self.ui.comboBoxSerialSpeed.addItems(['9600', '19200', '38400', '57600'])
+        # self.ui.comboBoxSerialSpeed.addItems(['9600', '19200', '38400', '57600'])
         index = self.ui.comboBoxSerialSpeed.findText(str(self.Thread_RS422_Communication.MainDict['SerialSpeed']),QtCore.Qt.MatchFixedString)
         self.ui.comboBoxSerialSpeed.setCurrentIndex(index)
         
         self.ui.comboBoxSerialName.addItems([self.Thread_RS422_Communication.SerialName]+self.serial_ports())
         
-        self.ui.spinBoxPeriodDate.setValue(self.Thread_RS422_Communication.MainDict['PeriodDate'])
+        index = self.ui.comboBoxPeriodDate.findText(str(self.Thread_RS422_Communication.MainDict['PeriodDate']),QtCore.Qt.MatchFixedString)
+        self.ui.comboBoxPeriodDate.setCurrentIndex(index)
         
-        MotorSpeedIN=self.Thread_RS422_Communication.MainDict['MotorSpeedIN']    
+        MotorSpeedIN=self.Thread_RS422_Communication.MainDict['MotorSpeedIN']
         self.ui.lineEdit_Speed_IN.setText(str(MotorSpeedIN))
-       
         
         MotorAccelerationIN=self.Thread_RS422_Communication.MainDict['MotorAccelerationIN'] 
         self.ui.lineEdit_Acceleration_IN.setText(str(MotorAccelerationIN))
@@ -274,22 +287,23 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         # self.ui.ButtonClickMe.clicked.connect(self.dispmessage)
         self.show()
         
-    def SaveDate(self):
-        # self.Thread_RS422_Communication.MainDict['SerialName'] = self.ui.comboBoxSerialName.currentText()
+    def SaveDate(self,value=0):
+        if value==1:
+            self.Thread_RS422_Communication.MainDict['SerialName'] = self.ui.comboBoxSerialName.currentText()
         self.Thread_RS422_Communication.MainDict['CurrentTabIndex']=self.ui.tabWidget.currentIndex()
         self.Thread_RS422_Communication.MainDict['SerialSpeed'] = int(self.ui.comboBoxSerialSpeed.currentText())
-        self.Thread_RS422_Communication.MainDict['PeriodDate'] = self.ui.spinBoxPeriodDate.value() 
+        self.Thread_RS422_Communication.MainDict['PeriodDate'] = int(self.ui.comboBoxPeriodDate.currentText())
         with open('ConfigandDate.txt', mode='w', encoding='utf-8') as f:
             dump(self.Thread_RS422_Communication.MainDict, f, indent=2)
         f.close()  
     
     
-    def closeEvent(self, event):       
+    def closeEvent(self, event):
 #        print("kjljuohoi")
-        self.SaveDate()
         self.Thread_RS422_Communication.runing=0
+        self.SaveDate()
         self.hide()
-        self.Thread_RS422_Communication.wait(5000)
+        self.Thread_RS422_Communication.wait(3000)
         self.Thread_RS422_Communication.terminate()
         
     def on_change(self, s):
