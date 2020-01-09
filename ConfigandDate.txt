@@ -1,14 +1,15 @@
 {
   "SerialName": "COM5",
   "SerialSpeed": 57600,
-  "PeriodDate": 600,
-  "ServoAdres": "0",
+  "PeriodDate": 200,
   "MRJ_Station_number": "0",
-  "Comment": "SET1(1-,2-,3-,4-,5-) \nSET2(1-,2-,3-,4-,5-) \nSET3(1-,2-,3-,4-,5-) \nSET4(1-,2-,3-,4-,5-) \n",
   "MRJ_type": "J2S-xCL",
-  "CurrentTabIndex": 3,
-  "MotorSpeedIN": 3000,
-  "MotorAccelerationIN": 4000,
+  "CurrentMode": 0,
+  "MotorSpeedIN": 210,
+  "MotorSpeed_Wheel": 2100,
+  "NL": 1,
+  "NM": 50,
+  "MotorAccelerationIN": 5000,
   "CurrentPosition": 0,
   "CurrentSpeed": 0
 }
