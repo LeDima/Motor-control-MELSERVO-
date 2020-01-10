@@ -70,6 +70,10 @@ class Thread_RS422_Communication(QtCore.QThread):
                 # startTime=time()
                 if self.SetCommand=="Pass":
                     pass
+                elif self.SetCommand=="Init":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
+                    self.Set_Speed_MRJ(self.MainDict['MotorSpeedIN'])
+                    self.Set_Acceleration_MRJ(self.MainDict['MotorAccelerationIN'])
                 elif self.SetCommand=="Start_forward_rotation":
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010807",6)
                 elif self.SetCommand=="Start_reverse_rotation":
@@ -79,12 +83,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                 elif self.SetCommand=="Set_Speed_MRJ":
                     self.Set_Speed_MRJ(self.MainDict['MotorSpeedIN'])
                 elif self.SetCommand=="Set_Acceleration_MRJ":
-                    self.Set_Acceleration_MRJ()
-                elif self.SetCommand=="Init":
-                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
-                    self.Set_Speed_MRJ(self.MainDict['MotorSpeedIN'])
-                    self.Set_Acceleration_MRJ()
-                    
+                    self.Set_Acceleration_MRJ(self.MainDict['MotorAccelerationIN'])
                 self.SetCommand="Pass"
                 # print ("Elapsed time: {:.3f} sec".format(time() - startTime))
                 
@@ -113,6 +112,10 @@ class Thread_RS422_Communication(QtCore.QThread):
             elif self.mode=="Wheel_mode":
                 if self.SetCommand=="Pass":
                     pass
+                elif self.SetCommand=="Init":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
+                    self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
+                    self.Set_Acceleration_MRJ(self.MainDict['MotorAccelerationIN'])
                 elif self.SetCommand=="Start_forward_rotation":
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010807",6)
                 elif self.SetCommand=="Start_reverse_rotation":
@@ -121,19 +124,49 @@ class Thread_RS422_Communication(QtCore.QThread):
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
                 elif self.SetCommand=="Set_Speed_MRJ":
                     self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
-                elif self.SetCommand=="Init":
-                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
-                    self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
-                    self.Set_Acceleration_MRJ()
-                    
                 self.SetCommand="Pass"
+                
                 self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
                 
             elif self.mode=="Hourglass_mode":
+                if self.SetCommand=="Pass":
+                    pass
+                elif self.SetCommand=="Init":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
+                    self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
+                    self.Set_Acceleration_MRJ(self.MainDict['MotorAccelerationIN'])
+                elif self.SetCommand=="Start_forward_rotation":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010807",6)
+                elif self.SetCommand=="Start_reverse_rotation":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00011007",6)
+                elif self.SetCommand=="Stop_rotation":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
+                elif self.SetCommand=="Set_Speed_MRJ":
+                    self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
+                self.SetCommand="Pass"
+                
+                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
                 
                 pass
                         
             elif self.mode=="Hourglass_Wheel_mode":
+                if self.SetCommand=="Pass":
+                    pass
+                elif self.SetCommand=="Init":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
+                    self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
+                    self.Set_Acceleration_MRJ(self.MainDict['MotorAccelerationIN'])
+                elif self.SetCommand=="Start_forward_rotation":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010807",6)
+                elif self.SetCommand=="Start_reverse_rotation":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00011007",6)
+                elif self.SetCommand=="Stop_rotation":
+                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
+                elif self.SetCommand=="Set_Speed_MRJ":
+                    self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
+                self.SetCommand="Pass"
+                
+                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
                 pass
             
             
@@ -161,17 +194,19 @@ class Thread_RS422_Communication(QtCore.QThread):
             #     self.mode="Manual_mode"                
             else:
                 try:
+                    startTime=time()
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","11","000003E8",6)#Acceleration/deceleration time constant
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6) 
-                    self.msleep(500)
+                    self.msleep(350)
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
-                    self.msleep(500)
+                    self.msleep(350)
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
-                    self.msleep(500)
+                    self.msleep(350)
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","12","1EA5",6) #Clear the test operation acceleration/deceleration time constant.
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0000",6) #Test operation mode cancel
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"90","10","1EA5",6) #Enables input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
                     self.ser.close()
+                    print ("Elapsed time: {:.3f} sec".format(time() - startTime))
                 except:
                     self.signal_error.emit('Error opening the port ' + str(self.MainDict['SerialName']))
                 else:
@@ -280,10 +315,10 @@ class Thread_RS422_Communication(QtCore.QThread):
         except:
             data = 0
         return data
-    def Set_Acceleration_MRJ(self):#Write the acceleration/deceleration time constant [ms] in hexadecimal
+    def Set_Acceleration_MRJ(self,Acceleration=1000):#Write the acceleration/deceleration time constant [ms] in hexadecimal
         try:
-            self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","11","0000"+format(self.MainDict['MotorAccelerationIN'],'04X'),6)
-            print("Set Acceleration: ",self.MainDict['MotorAccelerationIN'])           
+            self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","11","0000"+format(Acceleration,'04X'),6)
+            print("Set Acceleration: ",Acceleration)           
         except:
             pass
     def Set_Speed_MRJ(self,speed=0):
@@ -404,7 +439,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.mode=0
         self.SaveDate()
         self.hide()
-        self.Thread_RS422_Communication.wait(3000)
+        self.Thread_RS422_Communication.wait(2000)
         self.Thread_RS422_Communication.terminate()
         
     def on_change(self, s):

@@ -4,12 +4,12 @@
   "PeriodDate": 200,
   "MRJ_Station_number": "0",
   "MRJ_type": "J2S-xCL",
-  "CurrentMode": 0,
-  "MotorSpeedIN": 210,
-  "MotorSpeed_Wheel": 2100,
+  "CurrentMode": 3,
+  "MotorSpeedIN": 200,
+  "MotorSpeed_Wheel": 3000,
   "NL": 1,
   "NM": 50,
-  "MotorAccelerationIN": 5000,
+  "MotorAccelerationIN": 1500,
   "CurrentPosition": 0,
   "CurrentSpeed": 0
 }
