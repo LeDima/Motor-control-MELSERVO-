@@ -392,19 +392,23 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             self.ui.lineEdit_Acceleration_IN.setText(str(self.Thread_RS422_Communication.MainDict['MotorAccelerationIN']))
             
             NL=self.Thread_RS422_Communication.MainDict['NL']
+            index = self.ui.comboBox_NL.findText(str(NL),QtCore.Qt.MatchFixedString)
+            self.ui.comboBox_NL.setCurrentIndex(index)
             NM=self.Thread_RS422_Communication.MainDict['NM']
-            self.ui.button_Speed_Wheel_p1.setText( "{:.2f}".format(NL/NM))
-            self.ui.button_Speed_Wheel_p10.setText( "{:.1f}".format(10*NL/NM))
-            self.ui.button_Speed_Wheel_p100.setText( "{:.0f}".format(100*NL/NM))
-            self.ui.button_Speed_Wheel_m1.setText( "{:.2f}".format(-NL/NM))
-            self.ui.button_Speed_Wheel_m10.setText( "{:.1f}".format(-10*NL/NM))
-            self.ui.button_Speed_Wheel_m100.setText( "{:.0f}".format(-100*NL/NM))
+            index = self.ui.comboBox_NM.findText(str(NM),QtCore.Qt.MatchFixedString)
+            self.ui.comboBox_NM.setCurrentIndex(index)
+            self.ui.button_Speed_Wheel_p1.setText( "+{:.3f}".format(NL/NM))
+            self.ui.button_Speed_Wheel_p10.setText( "+{:.2f}".format(10*NL/NM))
+            self.ui.button_Speed_Wheel_p100.setText( "+{:.1f}".format(100*NL/NM))
+            self.ui.button_Speed_Wheel_m1.setText( "{:.3f}".format(-NL/NM))
+            self.ui.button_Speed_Wheel_m10.setText( "{:.2f}".format(-10*NL/NM))
+            self.ui.button_Speed_Wheel_m100.setText( "{:.1f}".format(-100*NL/NM))
             self.ui.lineEdit_Speed_Wheel_IN.setText("{:.2f}".format(self.Thread_RS422_Communication.MainDict['MotorSpeed_Wheel']*NL/NM))
             
-            self.ui.spinBox_NL.setValue(NL)
-            self.ui.spinBox_NM.setValue(NM)
-            self.ui.spinBox_NL.valueChanged.connect(self.onNL_NM_change)
-            self.ui.spinBox_NM.valueChanged.connect(self.onNL_NM_change)
+            # self.ui.spinBox_NL.setValue(NL)
+            # self.ui.spinBox_NM.setValue(NM)
+            # self.ui.spinBox_NL.valueChanged.connect(self.onNL_NM_change)
+            # self.ui.spinBox_NM.valueChanged.connect(self.onNL_NM_change)
         except:
             self.Thread_RS422_Communication.mode=0
         
@@ -423,6 +427,9 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         
         if value==1:
             self.Thread_RS422_Communication.MainDict['SerialName'] = self.ui.comboBoxSerialName.currentText()
+            
+        self.Thread_RS422_Communication.MainDict['NL'] = int(self.ui.comboBox_NL.currentText())
+        self.Thread_RS422_Communication.MainDict['NM'] = int(self.ui.comboBox_NM.currentText())
         self.Thread_RS422_Communication.MainDict['SerialSpeed'] = int(self.ui.comboBoxSerialSpeed.currentText())
         self.Thread_RS422_Communication.MainDict['PeriodDate'] = int(self.ui.comboBoxPeriodDate.currentText())
         self.Thread_RS422_Communication.MainDict['MRJ_type']=self.ui.comboBoxMRJ_type.currentText()        
