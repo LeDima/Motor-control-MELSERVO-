@@ -23,7 +23,7 @@ class MouseTracker(QWidget):
         self.show()
 
     def mouseMoveEvent(self, event):
-        self.label.setText('Mouse coords: ( %d : %d )' % (event.x(), event.y()))
+        self.label.setText('Mouse coords: ( %d : %d )' % (self.width(), self.height()))
 
 
 if __name__ == '__main__':
