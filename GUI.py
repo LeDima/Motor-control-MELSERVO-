@@ -41,7 +41,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setMaximumSize(QtCore.QSize(16777215, 10000))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(18)
+        font.setPointSize(19)
         self.tabWidget.setFont(font)
         self.tabWidget.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         self.tabWidget.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -59,20 +59,21 @@ class Ui_MainWindow(object):
         self.Tab_Wheel = QtWidgets.QWidget()
         self.Tab_Wheel.setObjectName("Tab_Wheel")
         self.groupBoxSet_Speed_Wheel = QtWidgets.QGroupBox(self.Tab_Wheel)
-        self.groupBoxSet_Speed_Wheel.setGeometry(QtCore.QRect(0, 60, 681, 101))
+        self.groupBoxSet_Speed_Wheel.setGeometry(QtCore.QRect(5, 60, 671, 101))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(16)
+        font.setPointSize(18)
         self.groupBoxSet_Speed_Wheel.setFont(font)
-        self.groupBoxSet_Speed_Wheel.setStyleSheet("border-color: rgb(0, 0, 0);\n"
-"alternate-background-color: rgb(0, 0, 0);\n"
-"selection-background-color: rgb(0, 0, 0);\n"
-"selection-color: rgb(0, 0, 0);\n"
-"gridline-color: rgb(0, 0, 0);\n"
-"border-left-color: rgb(0, 0, 0);\n"
-"border-bottom-color: rgb(0, 0, 0);\n"
-"border-right-color: rgb(0, 0, 0);\n"
-"border-top-color: rgb(0, 0, 0);")
+        self.groupBoxSet_Speed_Wheel.setStyleSheet("QGroupBox {\n"
+"    border: 2px solid rgb(0, 173, 0);\n"
+"    border-radius: 15px;\n"
+"    margin-top: 0.85em;\n"
+"}\n"
+"QGroupBox::title {\n"
+"    subcontrol-origin: margin;\n"
+"    left: 15px;\n"
+"    padding: 0 3px 0 3px;\n"
+"}")
         self.groupBoxSet_Speed_Wheel.setObjectName("groupBoxSet_Speed_Wheel")
         self.lineEdit_Speed_Wheel_IN = QtWidgets.QLineEdit(self.groupBoxSet_Speed_Wheel)
         self.lineEdit_Speed_Wheel_IN.setGeometry(QtCore.QRect(260, 30, 121, 60))
@@ -136,23 +137,23 @@ class Ui_MainWindow(object):
         self.ST2_ON_Button_Wheel.setGeometry(QtCore.QRect(10, 10, 241, 50))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(18)
+        font.setPointSize(19)
         self.ST2_ON_Button_Wheel.setFont(font)
         self.ST2_ON_Button_Wheel.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.ST2_ON_Button_Wheel.setObjectName("ST2_ON_Button_Wheel")
         self.ST12_OFF_Button_Wheel = QtWidgets.QPushButton(self.Tab_Wheel)
-        self.ST12_OFF_Button_Wheel.setGeometry(QtCore.QRect(260, 10, 171, 50))
+        self.ST12_OFF_Button_Wheel.setGeometry(QtCore.QRect(260, 10, 161, 50))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(18)
+        font.setPointSize(19)
         self.ST12_OFF_Button_Wheel.setFont(font)
         self.ST12_OFF_Button_Wheel.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.ST12_OFF_Button_Wheel.setObjectName("ST12_OFF_Button_Wheel")
         self.ST1_ON_Button_Wheel = QtWidgets.QPushButton(self.Tab_Wheel)
-        self.ST1_ON_Button_Wheel.setGeometry(QtCore.QRect(440, 10, 241, 50))
+        self.ST1_ON_Button_Wheel.setGeometry(QtCore.QRect(430, 10, 251, 50))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(18)
+        font.setPointSize(19)
         self.ST1_ON_Button_Wheel.setFont(font)
         self.ST1_ON_Button_Wheel.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.ST1_ON_Button_Wheel.setObjectName("ST1_ON_Button_Wheel")
@@ -166,10 +167,10 @@ class Ui_MainWindow(object):
         self.Tab_Manual = QtWidgets.QWidget()
         self.Tab_Manual.setObjectName("Tab_Manual")
         self.ST1_ON_Button = QtWidgets.QPushButton(self.Tab_Manual)
-        self.ST1_ON_Button.setGeometry(QtCore.QRect(440, 10, 241, 50))
+        self.ST1_ON_Button.setGeometry(QtCore.QRect(430, 10, 251, 50))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(18)
+        font.setPointSize(19)
         self.ST1_ON_Button.setFont(font)
         self.ST1_ON_Button.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.ST1_ON_Button.setObjectName("ST1_ON_Button")
@@ -177,24 +178,34 @@ class Ui_MainWindow(object):
         self.ST2_ON_Button.setGeometry(QtCore.QRect(10, 10, 241, 50))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(18)
+        font.setPointSize(19)
         self.ST2_ON_Button.setFont(font)
         self.ST2_ON_Button.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.ST2_ON_Button.setObjectName("ST2_ON_Button")
         self.ST12_OFF_Button = QtWidgets.QPushButton(self.Tab_Manual)
-        self.ST12_OFF_Button.setGeometry(QtCore.QRect(260, 10, 171, 50))
+        self.ST12_OFF_Button.setGeometry(QtCore.QRect(260, 10, 161, 50))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(18)
+        font.setPointSize(19)
         self.ST12_OFF_Button.setFont(font)
         self.ST12_OFF_Button.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.ST12_OFF_Button.setObjectName("ST12_OFF_Button")
         self.groupBoxSet_Speed = QtWidgets.QGroupBox(self.Tab_Manual)
-        self.groupBoxSet_Speed.setGeometry(QtCore.QRect(0, 60, 671, 101))
+        self.groupBoxSet_Speed.setGeometry(QtCore.QRect(5, 60, 671, 101))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(16)
+        font.setPointSize(18)
         self.groupBoxSet_Speed.setFont(font)
+        self.groupBoxSet_Speed.setStyleSheet("QGroupBox {\n"
+"    border: 2px solid rgb(0, 173, 0);\n"
+"    border-radius: 15px;\n"
+"    margin-top: 0.85em;\n"
+"}\n"
+"QGroupBox::title {\n"
+"    subcontrol-origin: margin;\n"
+"    left: 15px;\n"
+"    padding: 0 3px 0 3px;\n"
+"}")
         self.groupBoxSet_Speed.setObjectName("groupBoxSet_Speed")
         self.lineEdit_Speed_IN = QtWidgets.QLineEdit(self.groupBoxSet_Speed)
         self.lineEdit_Speed_IN.setGeometry(QtCore.QRect(270, 31, 101, 60))
@@ -255,67 +266,77 @@ class Ui_MainWindow(object):
         self.button_Speed_p100.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.button_Speed_p100.setObjectName("button_Speed_p100")
         self.groupBoxSet_Acceleration = QtWidgets.QGroupBox(self.Tab_Manual)
-        self.groupBoxSet_Acceleration.setGeometry(QtCore.QRect(0, 160, 671, 101))
+        self.groupBoxSet_Acceleration.setGeometry(QtCore.QRect(5, 160, 671, 101))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(16)
+        font.setPointSize(18)
         self.groupBoxSet_Acceleration.setFont(font)
+        self.groupBoxSet_Acceleration.setStyleSheet("QGroupBox {\n"
+"    border: 2px solid rgb(0, 173, 0);\n"
+"    border-radius: 15px;\n"
+"    margin-top: 0.85em;\n"
+"}\n"
+"QGroupBox::title {\n"
+"    subcontrol-origin: margin;\n"
+"    left: 15px;\n"
+"    padding: 0 3px 0 3px;\n"
+"}")
         self.groupBoxSet_Acceleration.setObjectName("groupBoxSet_Acceleration")
         self.lineEdit_Acceleration_IN = QtWidgets.QLineEdit(self.groupBoxSet_Acceleration)
-        self.lineEdit_Acceleration_IN.setGeometry(QtCore.QRect(250, 30, 151, 61))
+        self.lineEdit_Acceleration_IN.setGeometry(QtCore.QRect(270, 30, 101, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(22)
+        font.setPointSize(24)
         self.lineEdit_Acceleration_IN.setFont(font)
         self.lineEdit_Acceleration_IN.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.lineEdit_Acceleration_IN.setDragEnabled(False)
         self.lineEdit_Acceleration_IN.setReadOnly(True)
         self.lineEdit_Acceleration_IN.setObjectName("lineEdit_Acceleration_IN")
         self.button_Acceleration_m1000 = QtWidgets.QPushButton(self.groupBoxSet_Acceleration)
-        self.button_Acceleration_m1000.setGeometry(QtCore.QRect(10, 30, 81, 61))
+        self.button_Acceleration_m1000.setGeometry(QtCore.QRect(10, 30, 91, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(22)
+        font.setPointSize(24)
         self.button_Acceleration_m1000.setFont(font)
         self.button_Acceleration_m1000.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.button_Acceleration_m1000.setObjectName("button_Acceleration_m1000")
         self.button_Acceleration_m100 = QtWidgets.QPushButton(self.groupBoxSet_Acceleration)
-        self.button_Acceleration_m100.setGeometry(QtCore.QRect(100, 30, 71, 61))
+        self.button_Acceleration_m100.setGeometry(QtCore.QRect(110, 30, 71, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(22)
+        font.setPointSize(24)
         self.button_Acceleration_m100.setFont(font)
         self.button_Acceleration_m100.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.button_Acceleration_m100.setObjectName("button_Acceleration_m100")
         self.button_Acceleration_m10 = QtWidgets.QPushButton(self.groupBoxSet_Acceleration)
-        self.button_Acceleration_m10.setGeometry(QtCore.QRect(180, 30, 61, 61))
+        self.button_Acceleration_m10.setGeometry(QtCore.QRect(190, 30, 71, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(22)
+        font.setPointSize(24)
         self.button_Acceleration_m10.setFont(font)
         self.button_Acceleration_m10.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.button_Acceleration_m10.setObjectName("button_Acceleration_m10")
         self.button_Acceleration_p10 = QtWidgets.QPushButton(self.groupBoxSet_Acceleration)
-        self.button_Acceleration_p10.setGeometry(QtCore.QRect(410, 30, 61, 61))
+        self.button_Acceleration_p10.setGeometry(QtCore.QRect(380, 30, 71, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(22)
+        font.setPointSize(24)
         self.button_Acceleration_p10.setFont(font)
         self.button_Acceleration_p10.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.button_Acceleration_p10.setObjectName("button_Acceleration_p10")
         self.button_Acceleration_p100 = QtWidgets.QPushButton(self.groupBoxSet_Acceleration)
-        self.button_Acceleration_p100.setGeometry(QtCore.QRect(480, 30, 81, 61))
+        self.button_Acceleration_p100.setGeometry(QtCore.QRect(460, 30, 81, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(22)
+        font.setPointSize(24)
         self.button_Acceleration_p100.setFont(font)
         self.button_Acceleration_p100.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.button_Acceleration_p100.setObjectName("button_Acceleration_p100")
         self.button_Acceleration_p1000 = QtWidgets.QPushButton(self.groupBoxSet_Acceleration)
-        self.button_Acceleration_p1000.setGeometry(QtCore.QRect(570, 30, 91, 61))
+        self.button_Acceleration_p1000.setGeometry(QtCore.QRect(550, 30, 101, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(22)
+        font.setPointSize(24)
         self.button_Acceleration_p1000.setFont(font)
         self.button_Acceleration_p1000.setStyleSheet("background-color: rgb(146, 255, 210);")
         self.button_Acceleration_p1000.setObjectName("button_Acceleration_p1000")
@@ -626,8 +647,18 @@ class Ui_MainWindow(object):
         self.groupBox.setGeometry(QtCore.QRect(700, 20, 301, 171))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(16)
+        font.setPointSize(18)
         self.groupBox.setFont(font)
+        self.groupBox.setStyleSheet("QGroupBox {\n"
+"    border: 2px solid rgb(0, 173, 0);\n"
+"    border-radius: 15px;\n"
+"    margin-top: 0.85em;\n"
+"}\n"
+"QGroupBox::title {\n"
+"    subcontrol-origin: margin;\n"
+"    left: 15px;\n"
+"    padding: 0 3px 0 3px;\n"
+"}")
         self.groupBox.setInputMethodHints(QtCore.Qt.ImhNone)
         self.groupBox.setObjectName("groupBox")
         self.lcdPosition = QtWidgets.QLCDNumber(self.groupBox)
@@ -677,21 +708,31 @@ class Ui_MainWindow(object):
         self.lcdSpeed.setProperty("intValue", 0)
         self.lcdSpeed.setObjectName("lcdSpeed")
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QtCore.QRect(790, 320, 120, 80))
+        self.groupBox_2.setGeometry(QtCore.QRect(739, 230, 231, 221))
+        font = QtGui.QFont()
+        font.setPointSize(-1)
+        self.groupBox_2.setFont(font)
+        self.groupBox_2.setStyleSheet("QGroupBox {\n"
+"border: 1px solid gray;\n"
+"border-color: #FF17365D;\n"
+"margin-top: 27px;\n"
+"font-size: 14px;\n"
+"border-radius: 15px;\n"
+"}\n"
+"QGroupBox::title {\n"
+"border-top-left-radius: 9px;\n"
+"border-top-right-radius: 9px;\n"
+"padding: 2px 82px;\n"
+"background-color: #FF17365D;\n"
+"color: rgb(255, 255, 255);\n"
+"}")
         self.groupBox_2.setObjectName("groupBox_2")
-        self.frame = QtWidgets.QFrame(self.centralwidget)
-        self.frame.setGeometry(QtCore.QRect(800, 210, 120, 80))
-        self.frame.setFrameShape(QtWidgets.QFrame.Box)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Plain)
-        self.frame.setLineWidth(3)
-        self.frame.setMidLineWidth(2)
-        self.frame.setObjectName("frame")
         MainWindow.setCentralWidget(self.centralwidget)
         self.actionasda = QtWidgets.QAction(MainWindow)
         self.actionasda.setObjectName("actionasda")
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(4)
+        self.tabWidget.setCurrentIndex(0)
         self.comboBox_NM.setCurrentIndex(49)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -716,6 +757,7 @@ class Ui_MainWindow(object):
         self.ST2_ON_Button.setText(_translate("MainWindow", "Start reverse rotation"))
         self.ST12_OFF_Button.setText(_translate("MainWindow", "Stop rotation"))
         self.groupBoxSet_Speed.setTitle(_translate("MainWindow", "Set speed, r/min(0...3000)"))
+        self.lineEdit_Speed_IN.setText(_translate("MainWindow", "3000"))
         self.button_Speed_m1.setText(_translate("MainWindow", "-1"))
         self.button_Speed_m10.setText(_translate("MainWindow", "-10"))
         self.button_Speed_m100.setText(_translate("MainWindow", "-100"))
@@ -723,6 +765,7 @@ class Ui_MainWindow(object):
         self.button_Speed_p10.setText(_translate("MainWindow", "+10"))
         self.button_Speed_p100.setText(_translate("MainWindow", "+100"))
         self.groupBoxSet_Acceleration.setTitle(_translate("MainWindow", "Set Acceleration, ms(500...20000)"))
+        self.lineEdit_Acceleration_IN.setText(_translate("MainWindow", "20000"))
         self.button_Acceleration_m1000.setText(_translate("MainWindow", "-1000"))
         self.button_Acceleration_m100.setText(_translate("MainWindow", "-100"))
         self.button_Acceleration_m10.setText(_translate("MainWindow", "-10"))
