@@ -1,15 +1,17 @@
 {
   "SerialName": "COM5",
   "SerialSpeed": 57600,
-  "PeriodDate": 200,
+  "PeriodDate": 450,
   "MRJ_Station_number": "0",
   "MRJ_type": "J2S-xCL",
-  "CurrentMode": 3,
-  "MotorSpeedIN": 200,
-  "MotorSpeed_Wheel": 3000,
+  "CurrentMode": 0,
+  "MotorSpeedIN": 408,
+  "MotorSpeed_Wheel": 102,
   "NL": 1,
   "NM": 50,
-  "MotorAccelerationIN": 1500,
+  "MotorAccelerationIN": 6500,
+  "VibInt_Wheel": 23,
+  "Vib_Wheel": "OFF",
   "CurrentPosition": 0,
   "CurrentSpeed": 0
 }

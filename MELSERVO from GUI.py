@@ -7,14 +7,20 @@ Created on Mon Dec 23 11:38:25 2019
 import sys
 import glob
 
+if sys.platform.startswith('linux'):
+    import pigpio 
+elif sys.platform.startswith('win'):
+    pigpio=None
+
 from functools import partial
 # from sys import argv, exit, platform
 from json import load, dump
 from serial import SerialException, Serial, PARITY_EVEN
 from time import time
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
-from GUI import *
+from GUI import Ui_MainWindow
+
 
 
 
@@ -25,11 +31,16 @@ class Thread_RS422_Communication(QtCore.QThread):
         QtCore.QThread.__init__(self, parent)
         self.mode="Manual_mode"
         self.SetCommand="Pass"
-        self.CreateFileConfigandDate()
-
+        # self.Vibration="OFF"
+        try:
+            self.PWM_Output=pigpio.pi()
+        except:
+            pass
         
+        self.CreateFileConfigandDate()
         self.i=0.001
         self.j=0.001      
+    
     def run(self):
         if self.SerialName!="None" :
             self.signal_error.emit('Serial port ' + self.MainDict['SerialName'] + ' connected.')
@@ -65,12 +76,16 @@ class Thread_RS422_Communication(QtCore.QThread):
             self.signal_error.emit('Error opening the port ' + self.MainDict['SerialName'])
             
         while self.SerialName!="None":            
+            startTime=time()
+            # print(self.mode)
             self.msleep(self.MainDict['PeriodDate'])  # "Засыпаем" на PeriodDate милисекунды
+            # startTime=time()
             if self.mode=="Manual_mode":
                 # startTime=time()
                 if self.SetCommand=="Pass":
                     pass
                 elif self.SetCommand=="Init":
+                    self.Set_vibration_ON_OFF("OFF")
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
                     self.Set_Speed_MRJ(self.MainDict['MotorSpeedIN'])
                     self.Set_Acceleration_MRJ(self.MainDict['MotorAccelerationIN'])
@@ -90,48 +105,47 @@ class Thread_RS422_Communication(QtCore.QThread):
                 # self.startTime = time()
                 # print(self.write_and_read_MRJ_DIO(self.ser))
                 # self.Get_MRJ_statuses()
-                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
+                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ(),self.Get_MRJ_statuses()])
                 # print("Current statuses: ",self.Get_MRJ_statuses())
                 # print("Current position: ",self.Get_Positin_MRJ())
                 # print("Servo motor speed: ",self.Get_Speed_MRJ())
                 # if(self.i>=500):
                 #     self.i=self.j=0.001
                 #     pass
-                    
-                # print("{0:.2f}".format(100*self.j/self.i)+"%")
-                # print(self.j/self.i)
-                # self.dataFloat = [float(data_to_send[i:i+7]) for i in range(56) if i%7==0]
-                # data_to_send = self.write_and_read_MRJ(self.ser, self.MainDict['ICPCONAdres2'])
-                # self.dataFloat += [float(data_to_send[i:i+7]) for i in range(56) if i%7==0]
-                # self.dataFloat = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-                # self.signal_main.emit(self.dataFloat)
-
-#                print (self.dataFloat)
-#                 print ("Elapsed time: {:.3f} sec".format(time() - self.startTime))
                 
             elif self.mode=="Wheel_mode":
                 if self.SetCommand=="Pass":
                     pass
                 elif self.SetCommand=="Init":
+                    self.Set_vibration_ON_OFF("OFF")
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
                     self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
                     self.Set_Acceleration_MRJ(self.MainDict['MotorAccelerationIN'])
                 elif self.SetCommand=="Start_forward_rotation":
+                    self.Set_vibration_ON_OFF(self.MainDict['Vib_Wheel'],self.MainDict['VibInt_Wheel'])
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010807",6)
                 elif self.SetCommand=="Start_reverse_rotation":
+                    self.Set_vibration_ON_OFF(self.MainDict['Vib_Wheel'],self.MainDict['VibInt_Wheel'])
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00011007",6)
                 elif self.SetCommand=="Stop_rotation":
+                    self.Set_vibration_ON_OFF("OFF")
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
                 elif self.SetCommand=="Set_Speed_MRJ":
                     self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
+                elif self.SetCommand=="Set_Vibration":
+                    statuses = self.Get_MRJ_statuses()
+                    if (statuses == "00010807")or(statuses == "00011007"):
+                        self.Set_vibration_ON_OFF(self.MainDict['Vib_Wheel'],self.MainDict['VibInt_Wheel'])
+                    
                 self.SetCommand="Pass"
                 
-                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
+                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ(),self.Get_MRJ_statuses()])
                 
             elif self.mode=="Hourglass_mode":
                 if self.SetCommand=="Pass":
                     pass
                 elif self.SetCommand=="Init":
+                    self.Set_vibration_ON_OFF("OFF")
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
                     self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
                     self.Set_Acceleration_MRJ(self.MainDict['MotorAccelerationIN'])
@@ -145,7 +159,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                     self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
                 self.SetCommand="Pass"
                 
-                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
+                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ(),self.Get_MRJ_statuses()])
                 
                 pass
                         
@@ -153,6 +167,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                 if self.SetCommand=="Pass":
                     pass
                 elif self.SetCommand=="Init":
+                    self.Set_vibration_ON_OFF("OFF")
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
                     self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
                     self.Set_Acceleration_MRJ(self.MainDict['MotorAccelerationIN'])
@@ -166,7 +181,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                     self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
                 self.SetCommand="Pass"
                 
-                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ()])
+                self.signal_main.emit([self.Get_Positin_MRJ(),self.Get_Speed_MRJ(),self.Get_MRJ_statuses()])
                 pass
             
             
@@ -194,6 +209,7 @@ class Thread_RS422_Communication(QtCore.QThread):
             #     self.mode="Manual_mode"                
             else:
                 try:
+                    print(10)
                     startTime=time()
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","11","000003E8",6)#Acceleration/deceleration time constant
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6) 
@@ -205,14 +221,17 @@ class Thread_RS422_Communication(QtCore.QThread):
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","12","1EA5",6) #Clear the test operation acceleration/deceleration time constant.
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0000",6) #Test operation mode cancel
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"90","10","1EA5",6) #Enables input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
+                    print(20)
                     self.ser.close()
+                    
                     print ("Elapsed time: {:.3f} sec".format(time() - startTime))
                 except:
                     self.signal_error.emit('Error opening the port ' + str(self.MainDict['SerialName']))
                 else:
                     print("port close")
-                break
-
+                    break
+            print ("Elapsed time: {:.3f} sec".format(time() - startTime))
+        print("Thread exit")
     
     def CreateFileConfigandDate(self):
         
@@ -231,6 +250,8 @@ class Thread_RS422_Communication(QtCore.QThread):
                               , 'NL':1
                               , 'NM':50
                               , 'MotorAccelerationIN':1000
+                              , 'VibInt_Wheel':20
+                              , 'Vib_Wheel':'OFF'
                               , 'CurrentPosition':0
                               , 'CurrentSpeed':0
                               }
@@ -239,7 +260,6 @@ class Thread_RS422_Communication(QtCore.QThread):
             with open('ConfigandDate.txt', 'r', encoding='utf-8') as f:
                 self.MainDict = load(f)
         f.close()
-
         try:
             self.SerialName=self.MainDict['SerialName']
             self.ser = self.open_serial_port(self.MainDict['SerialName'])
@@ -247,8 +267,7 @@ class Thread_RS422_Communication(QtCore.QThread):
             self.SerialName='None'
             print('System error')
             self.mode = 0
-
-        
+    
     def open_serial_port(self, serial_name: object) -> object:
         try:
             s = Serial(serial_name, self.MainDict['SerialSpeed'],parity=PARITY_EVEN)
@@ -263,11 +282,8 @@ class Thread_RS422_Communication(QtCore.QThread):
         j=0
         resent=0
         str1="\x01"+motor+comand+"\x02"+dataNo+dataIN+"\x03"
-          
         CRC2=format(sum([ord(ss) for ss in str1[1:]]),'02X')[-2:]
-
         cmd2=str1.encode("iso-8859-15")+CRC2.encode("iso-8859-15")
-
         while((resent==0)and(j<5)):
             j+=1
             try:
@@ -281,10 +297,12 @@ class Thread_RS422_Communication(QtCore.QThread):
                 else:                    
                     self.j+=1
                     data = None
-            except:                
+            except:
+                print("Except write_and_read_MRJ")
                 self.j+=1
                 data = None
         if(data==None):
+            pass
             print("------")
                            
         return data
@@ -295,8 +313,7 @@ class Thread_RS422_Communication(QtCore.QThread):
             hex_data="{:08X}".format(int((data[3:-3]).decode('utf-8'),16))
         except:
             hex_data="00000000"    
-            print("Error decode")
-
+            print("Except Get_MRJ_statuses")
         return hex_data
     
     def Get_Positin_MRJ(self):
@@ -306,28 +323,43 @@ class Thread_RS422_Communication(QtCore.QThread):
             data2= int(self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"01",self.One_revolution_position,"",18)[7:-3].decode('utf-8'),16)
             data=round(data+data2/131072,2)
         except:
+            print("Except Get_Positin_MRJ")
             data = 0
         return data
+    
     def Get_Speed_MRJ(self):
         try:
             data = int(self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"01",self.Servo_motor_speed,"",18)[7:-3].decode('utf-8'),16)
             data = -(data & 0x80000000) | (data & 0x7fffffff)
         except:
+            print("Except Get_Speed_MRJ")
             data = 0
         return data
+    
     def Set_Acceleration_MRJ(self,Acceleration=1000):#Write the acceleration/deceleration time constant [ms] in hexadecimal
         try:
             self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","11","0000"+format(Acceleration,'04X'),6)
             print("Set Acceleration: ",Acceleration)           
         except:
+            print("Except Set_Acceleration_MRJ")
             pass
+    
     def Set_Speed_MRJ(self,speed=0):
         try:
-            # print("sgsdf")
             self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","10",format(speed,'04X'),6)
             print("Set Speed: ",speed)           
         except:
+            print("Except Set_Speed_MRJ")
             pass
+    
+    def Set_vibration_ON_OFF(self,vibration_ON_OFF="OFF",vibration_intensity=0):
+        try:
+            if vibration_ON_OFF=="ON":
+                self.PWM_Output.hardware_PWM(12,30000,10000*vibration_intensity)
+            if vibration_ON_OFF=="OFF":
+                self.PWM_Output.hardware_PWM(12,0,0)
+        except:
+            print("Except PWM")
 
 
 class ApplicationWindow(QtWidgets.QMainWindow):
@@ -336,41 +368,56 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         serialname = self.serial_ports()
+        print(1)
+        self.ui.tabWidget.currentChanged.connect(self.onTabwiget)
         
         self.ui.ST1_ON_Button.clicked.connect(self.onST1_ON_Button)
         self.ui.ST2_ON_Button.clicked.connect(self.onST2_ON_Button)
         self.ui.ST12_OFF_Button.clicked.connect(self.onST12_OFF_Button)
-        self.ui.ST1_ON_Button_Wheel.clicked.connect(self.onST1_ON_Button)
-        self.ui.ST2_ON_Button_Wheel.clicked.connect(self.onST2_ON_Button)
-        self.ui.ST12_OFF_Button_Wheel.clicked.connect(self.onST12_OFF_Button)
-        self.ui.pushButton_Save_Settings.clicked.connect(partial(self.SaveDate,1))
+        
         self.ui.button_Speed_m1.clicked.connect(partial(self.onSpeed_Button,-1))
         self.ui.button_Speed_m10.clicked.connect(partial(self.onSpeed_Button,-10))
         self.ui.button_Speed_m100.clicked.connect(partial(self.onSpeed_Button,-100))
         self.ui.button_Speed_p1.clicked.connect(partial(self.onSpeed_Button,1))
         self.ui.button_Speed_p10.clicked.connect(partial(self.onSpeed_Button,10))
         self.ui.button_Speed_p100.clicked.connect(partial(self.onSpeed_Button,100))
+        
         self.ui.button_Acceleration_m10.clicked.connect(partial(self.onAcceleration_Button,-10))
         self.ui.button_Acceleration_m100.clicked.connect(partial(self.onAcceleration_Button,-100))
         self.ui.button_Acceleration_m1000.clicked.connect(partial(self.onAcceleration_Button,-1000))
         self.ui.button_Acceleration_p10.clicked.connect(partial(self.onAcceleration_Button,10))
         self.ui.button_Acceleration_p100.clicked.connect(partial(self.onAcceleration_Button,100))
         self.ui.button_Acceleration_p1000.clicked.connect(partial(self.onAcceleration_Button,1000))
-        self.ui.tabWidget.currentChanged.connect(self.onTabwiget)
+        
+        self.ui.ST1_ON_Button_Wheel.clicked.connect(self.onST1_ON_Button)
+        self.ui.ST2_ON_Button_Wheel.clicked.connect(self.onST2_ON_Button)
+        self.ui.ST12_OFF_Button_Wheel.clicked.connect(self.onST12_OFF_Button)
+        
         self.ui.button_Speed_Wheel_m1.clicked.connect(partial(self.onSpeed_Wheel_Button,-1))
         self.ui.button_Speed_Wheel_m10.clicked.connect(partial(self.onSpeed_Wheel_Button,-10))
         self.ui.button_Speed_Wheel_m100.clicked.connect(partial(self.onSpeed_Wheel_Button,-100))
         self.ui.button_Speed_Wheel_p1.clicked.connect(partial(self.onSpeed_Wheel_Button,1))
         self.ui.button_Speed_Wheel_p10.clicked.connect(partial(self.onSpeed_Wheel_Button,10))
         self.ui.button_Speed_Wheel_p100.clicked.connect(partial(self.onSpeed_Wheel_Button,100))
-        # self.ui.tabWidget.setStyleSheet("background-color:rgb(174, 255, 255);")
         
+        self.ui.button_VibInt_Wheel_m1.clicked.connect(partial(self.onVibInt_Wheel_Button,-1))
+        self.ui.button_VibInt_Wheel_m10.clicked.connect(partial(self.onVibInt_Wheel_Button,-10))
+        self.ui.button_VibInt_Wheel_p1.clicked.connect(partial(self.onVibInt_Wheel_Button,1))
+        self.ui.button_VibInt_Wheel_p10.clicked.connect(partial(self.onVibInt_Wheel_Button,10))
+        
+        self.ui.comboBox_Vib_Wheel.currentIndexChanged.connect(partial(self.onVibInt_Wheel_Button,0))
+        
+        self.ui.pushButton_Save_Settings.clicked.connect(partial(self.SaveDate,1))
+
+        
+        # self.ui.tabWidget.setStyleSheet("background-color:rgb(174, 255, 255);")
+        print(2)
         
         try:
             self.Thread_RS422_Communication = Thread_RS422_Communication()
             self.Thread_RS422_Communication.signal_main.connect(self.on_change, QtCore.Qt.QueuedConnection)
             self.Thread_RS422_Communication.start() 
-            
+            print(3)
             self.ui.tabWidget.setCurrentIndex(self.Thread_RS422_Communication.MainDict['CurrentMode'])
             
             self.ui.comboBoxSerialName.addItems([self.Thread_RS422_Communication.SerialName]+serialname)
@@ -405,12 +452,20 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             self.ui.button_Speed_Wheel_m100.setText( "{:.1f}".format(-100*NL/NM))
             self.ui.lineEdit_Speed_Wheel_IN.setText("{:.2f}".format(self.Thread_RS422_Communication.MainDict['MotorSpeed_Wheel']*NL/NM))
             
+            index = self.ui.comboBox_Vib_Wheel.findText(str(self.Thread_RS422_Communication.MainDict['Vib_Wheel']),QtCore.Qt.MatchFixedString)
+            self.ui.comboBox_Vib_Wheel.setCurrentIndex(index)
+            
+            self.ui.lineEdit_VibInt_Wheel.setText(str(self.Thread_RS422_Communication.MainDict['VibInt_Wheel']))
+            
+            print(4)
             # self.ui.spinBox_NL.setValue(NL)
             # self.ui.spinBox_NM.setValue(NM)
             # self.ui.spinBox_NL.valueChanged.connect(self.onNL_NM_change)
             # self.ui.spinBox_NM.valueChanged.connect(self.onNL_NM_change)
         except:
+            print("Except init Thread")
             self.Thread_RS422_Communication.mode=0
+            
         
        
         # self.ui.spinBoxSpeed_IN_10X.setValue(int(self.Thread_RS422_Communication.MainDict['MotorSpeedIN']/100)*100)
@@ -421,7 +476,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         
         
         # self.ui.ButtonClickMe.clicked.connect(self.dispmessage)
-        self.show()
+        # self.show()
         
     def SaveDate(self,value=0):
         
@@ -442,36 +497,52 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     
     
     def closeEvent(self, event):
-#        print("kjljuohoi")
+        # print(event)
         self.Thread_RS422_Communication.mode=0
         self.SaveDate()
         self.hide()
-        self.Thread_RS422_Communication.wait(2000)
-        self.Thread_RS422_Communication.terminate()
+        self.Thread_RS422_Communication.wait(3000)
+        # self.Thread_RS422_Communication.terminate()
+        # sys.exit(0)
+        event.accept()
+        # return 1
+        
         
     def on_change(self, s):
-        # print(s)
-        self.ui.lcdPosition.display("{:.2f}".format(s[0]))
-        self.ui.lcdSpeed.display(str(s[1]))
-        # self.ui.lcdNumber.SetValue(500)
-        # self.ValueDate[0].setText("Position: "+str(s[0]))
-        # self.ValueDate[1].setText("Speed: "+str(s[1]))
-        # if s[1]>0:
-        #     self.ST1_ON_Button.setStyleSheet("background-color: #00FF00") #Green
-        #     self.ST2_ON_Button.setStyleSheet("background-color: #FFFF00") #Yellow
-        #     self.ST12_OFF_Button.setStyleSheet("background-color: #FFFF00") #Yellow            
-        # elif s[1]<0:
-        #     self.ST1_ON_Button.setStyleSheet("background-color: #FFFF00") #Yellow
-        #     self.ST2_ON_Button.setStyleSheet("background-color: #00FF00") #Green
-        #     self.ST12_OFF_Button.setStyleSheet("background-color: #FFFF00") #Yellow 
-        # else:
-        #     self.ST1_ON_Button.setStyleSheet("background-color: #FFFF00") #Yellow
-        #     self.ST2_ON_Button.setStyleSheet("background-color: #FFFF00") #Yellow
-        #     self.ST12_OFF_Button.setStyleSheet("background-color: #FF0000") #Red 
-
-    # def dispmessage(self):
-    #     self.ui.labelResponse.setText("Hello "+self.ui.lineEditName.text())
-        
+        # print(s[2])
+        # self.ui.lcdPosition.display("{:.2f}".format(s[0]))
+        self.ui.lineEdit_Position.setText("{:.2f}".format(s[0]))
+        # self.ui.lcdSpeed.display(str(s[1]))
+        self.ui.lineEdit_Speed.setText(str(s[1]))
+        if(s[2]=="00010007"):
+            self.ui.lineEdit_Statuses.setText("STOP")
+            self.ui.lineEdit_Statuses.setStyleSheet("QLineEdit { background-color: yellow;border: 2px solid  rgb(0, 173, 0);border-radius: 15px;}")
+            # self.ui.MainWindow.setStyleSheet("QLineEdit#lineEdit_Statuses {background-color: yellow }")
+        elif(s[2]=="00010807"):
+            self.ui.lineEdit_Statuses.setText("Rotation >")
+            self.ui.lineEdit_Statuses.setStyleSheet("QLineEdit { background-color: green;border: 2px solid green;border-radius: 15px;}")
+        elif(s[2]=="00011007"):
+            self.ui.lineEdit_Statuses.setText("Rotation <")
+            self.ui.lineEdit_Statuses.setStyleSheet("QLineEdit { background-color: green;border: 2px solid green;border-radius: 15px;}")
+        else:
+            self.ui.lineEdit_Statuses.setText("ERROR")
+            self.ui.lineEdit_Statuses.setStyleSheet("QLineEdit { background-color: red;border: 2px solid green;border-radius: 15px;}")
+    
+    def onTabwiget(self):
+        index=self.ui.tabWidget.currentIndex()
+        if index==0:
+            self.Thread_RS422_Communication.mode="Wheel_mode"
+        elif index==1:
+            self.Thread_RS422_Communication.mode="Hourglass_mode"
+        elif index==2:
+            self.Thread_RS422_Communication.mode="Hourglass_Wheel_mode"
+        else:
+            self.Thread_RS422_Communication.mode="Manual_mode"
+        self.Thread_RS422_Communication.SetCommand="Init"
+            
+        print(index)
+        pass
+    
     def onST1_ON_Button(self):
         self.Thread_RS422_Communication.SetCommand="Start_forward_rotation"
         
@@ -481,7 +552,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     def onST12_OFF_Button(self):
         self.Thread_RS422_Communication.SetCommand="Stop_rotation"
         
-    
     def onSpeed_Button(self,value=0):
         # print(self.sender().myDate)
         value = self.Thread_RS422_Communication.MainDict['MotorSpeedIN']+value
@@ -508,13 +578,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.MainDict['MotorSpeed_Wheel']=value
         self.Thread_RS422_Communication.SetCommand="Set_Speed_MRJ"
         
-    def onNL_NM_change(self):
-        print("xcxzcx")
-        self.Thread_RS422_Communication.MainDict['NM']=self.ui.spinBox_NM.value()
-        self.Thread_RS422_Communication.MainDict['NL']=self.ui.spinBox_NL.value()
         
-        
-
     def onAcceleration_Button(self,value=0):
         value = self.Thread_RS422_Communication.MainDict['MotorAccelerationIN']+value
         if value<=500:
@@ -527,21 +591,24 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         
         print(value)
         
-    def onTabwiget(self):
-        index=self.ui.tabWidget.currentIndex()
-        if index==0:
-            self.Thread_RS422_Communication.mode="Wheel_mode"
-        elif index==1:
-            self.Thread_RS422_Communication.mode="Hourglass_mode"
-        elif index==2:
-            self.Thread_RS422_Communication.mode="Hourglass_Wheel_mode"
-        else:
-            self.Thread_RS422_Communication.mode="Manual_mode"
-        self.Thread_RS422_Communication.SetCommand="Init"
-            
-        print(index)
-        pass
-    
+    def onVibInt_Wheel_Button(self,value=0):
+        # print(self.sender().myDate)
+        value = self.Thread_RS422_Communication.MainDict['VibInt_Wheel']+value
+        if value<=0:
+           value=0
+        elif value>=80:
+            value=80
+        self.ui.lineEdit_VibInt_Wheel.setText(str(value))
+        self.Thread_RS422_Communication.MainDict['VibInt_Wheel']=value
+        print(self.ui.comboBox_Vib_Wheel.currentText())
+        self.Thread_RS422_Communication.MainDict['Vib_Wheel']=self.ui.comboBox_Vib_Wheel.currentText()
+        self.Thread_RS422_Communication.SetCommand="Set_Vibration"
+        
+    def onNL_NM_change(self):
+        print("xcxzcx")
+        self.Thread_RS422_Communication.MainDict['NM']=self.ui.spinBox_NM.value()
+        self.Thread_RS422_Communication.MainDict['NL']=self.ui.spinBox_NL.value()
+        
     def serial_ports(self):
         """ Lists serial port names
     
@@ -567,22 +634,39 @@ class ApplicationWindow(QtWidgets.QMainWindow):
                 s.close()
                 result.append(port)
             except (OSError, SerialException):
-                pass
+                print("Except serial_ports scan")
+        print("a")
         return result
 
-if __name__=="__main__":    
+if __name__=="__main__":
+    # app = QtWidgets.QApplication(sys.argv)
+    # window = ApplicationWindow()
+    # window.show()
+    # print(0)
+    # # sys.exit()
+    # sys.exit(app.exec_())
+    # print(-1)
     
     try:
         app = QtWidgets.QApplication(sys.argv)
         window = ApplicationWindow()
         window.show()
+        # print(0)
+        # sys.exit()
+        # window.exec()
         sys.exit(app.exec_())
+        # print(-1)
     except:
-        # print("Exept")
-        window.Thread_RS422_Communication.terminate()
-    
-    # app = QtWidgets.QApplication(argv)
-    # window = ApplicationWindow()
-    # w.show()
-    # w.exec()
-    # sys.exit(app.exec_())
+        pass
+    #     print("Except window")
+    #     try:
+    #         window.Thread_RS422_Communication.mode=0
+    #         # print(1)
+    #         window.Thread_RS422_Communication.wait(3000)
+    #         # print(2)
+    #         window.Thread_RS422_Communicationser.ser.close()
+    #         # print(3)
+    #     except:
+    #         print("Except Thread_RS422_Communication")
+    #         window.Thread_RS422_Communication.terminate()
+    #         # print(4)
