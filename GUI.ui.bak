@@ -99,7 +99,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>4</number>
     </property>
     <property name="iconSize">
      <size>
@@ -569,7 +569,7 @@ QGroupBox::title {
      <widget class="QPushButton" name="button_Start_Hourglass">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>0</x>
         <y>380</y>
         <width>181</width>
         <height>60</height>
@@ -997,212 +997,6 @@ QGroupBox::title {
          <string>ON</string>
         </property>
        </item>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBoxSet_HoldTime_Hourglass">
-      <property name="geometry">
-       <rect>
-        <x>5</x>
-        <y>200</y>
-        <width>281</width>
-        <height>101</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>18</pointsize>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QGroupBox {
-    border: 2px solid rgb(0, 173, 0);
-    border-radius: 15px;
-    margin-top: 0.85em;
-}
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 15px;
-    padding: 0 3px 0 3px;
-}</string>
-      </property>
-      <property name="title">
-       <string>Set hold time, sec</string>
-      </property>
-      <widget class="QLineEdit" name="lineEdit_HoldTime_Hourglass">
-       <property name="geometry">
-        <rect>
-         <x>100</x>
-         <y>30</y>
-         <width>81</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>28</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(231, 255, 237);</string>
-       </property>
-       <property name="text">
-        <string>600</string>
-       </property>
-       <property name="dragEnabled">
-        <bool>false</bool>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="button_HoldTime_Hourglass_m10">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>30</y>
-         <width>81</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>28</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(146, 255, 210);</string>
-       </property>
-       <property name="text">
-        <string>-10</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="button_HoldTime_Hourglass_p10">
-       <property name="geometry">
-        <rect>
-         <x>190</x>
-         <y>30</y>
-         <width>81</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>28</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(146, 255, 210);</string>
-       </property>
-       <property name="text">
-        <string>+10</string>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBoxSet_Angle_Hourglass">
-      <property name="geometry">
-       <rect>
-        <x>290</x>
-        <y>200</y>
-        <width>281</width>
-        <height>101</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>16</pointsize>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QGroupBox {
-    border: 2px solid rgb(0, 173, 0);
-    border-radius: 15px;
-    margin-top: 0.85em;
-}
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 15px;
-    padding: 0 3px 0 3px;
-}</string>
-      </property>
-      <property name="title">
-       <string>Set oscillation angle, 0-20°</string>
-      </property>
-      <widget class="QLineEdit" name="lineEdit_Angle_Hourglass">
-       <property name="geometry">
-        <rect>
-         <x>100</x>
-         <y>30</y>
-         <width>81</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>24</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(231, 255, 237);</string>
-       </property>
-       <property name="text">
-        <string>10</string>
-       </property>
-       <property name="dragEnabled">
-        <bool>false</bool>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="button_Angle_Hourglass_m05">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>30</y>
-         <width>81</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>24</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(146, 255, 210);</string>
-       </property>
-       <property name="text">
-        <string>-0.5°</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="button_Angle_Hourglass_p05">
-       <property name="geometry">
-        <rect>
-         <x>190</x>
-         <y>30</y>
-         <width>81</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>24</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(146, 255, 210);</string>
-       </property>
-       <property name="text">
-        <string>+0.5°</string>
-       </property>
       </widget>
      </widget>
     </widget>
@@ -2911,7 +2705,7 @@ QGroupBox::title {
      <widget class="QGroupBox" name="groupBoxSet_Backlash">
       <property name="geometry">
        <rect>
-        <x>5</x>
+        <x>0</x>
         <y>300</y>
         <width>521</width>
         <height>101</height>

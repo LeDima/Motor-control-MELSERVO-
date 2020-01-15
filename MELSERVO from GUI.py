@@ -278,13 +278,11 @@ class Thread_RS422_Communication(QtCore.QThread):
         return s
         
     def write_and_read_MRJ(self, s: object, motor = "0", comand = "01", dataNo = "80",dataIN = "",numberchar = 20  ) -> object:
-        
         j=0
-        resent=0
         str1="\x01"+motor+comand+"\x02"+dataNo+dataIN+"\x03"
         CRC2=format(sum([ord(ss) for ss in str1[1:]]),'02X')[-2:]
         cmd2=str1.encode("iso-8859-15")+CRC2.encode("iso-8859-15")
-        while((resent==0)and(j<5)):
+        while j<5:
             j+=1
             try:
                 self.i+=1
@@ -293,7 +291,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                 data=s.read(numberchar)
                        
                 if(data[-2:].decode('utf-8')==format(sum(ss for ss in data[1:-2]),'02X')[-2:]):
-                    resent=1                    
+                    break
                 else:                    
                     self.j+=1
                     data = None
@@ -301,6 +299,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                 print("Except write_and_read_MRJ")
                 self.j+=1
                 data = None
+                break
         if(data==None):
             pass
             print("------")
@@ -658,15 +657,15 @@ if __name__=="__main__":
         # print(-1)
     except:
         pass
-    #     print("Except window")
-    #     try:
-    #         window.Thread_RS422_Communication.mode=0
-    #         # print(1)
-    #         window.Thread_RS422_Communication.wait(3000)
-    #         # print(2)
-    #         window.Thread_RS422_Communicationser.ser.close()
-    #         # print(3)
-    #     except:
-    #         print("Except Thread_RS422_Communication")
-    #         window.Thread_RS422_Communication.terminate()
-    #         # print(4)
+        print("Except window")
+        try:
+            window.Thread_RS422_Communication.mode=0
+            # print(1)
+            window.Thread_RS422_Communication.wait(3000)
+            # print(2)
+            window.Thread_RS422_Communicationser.ser.close()
+            # print(3)
+        except:
+            print("Except Thread_RS422_Communication")
+            window.Thread_RS422_Communication.terminate()
+            # print(4)
