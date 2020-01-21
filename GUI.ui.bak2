@@ -1267,9 +1267,9 @@ QGroupBox::title {
      <widget class="QPushButton" name="button_SetZeroPosition_Hourglass">
       <property name="geometry">
        <rect>
-        <x>420</x>
-        <y>100</y>
-        <width>121</width>
+        <x>530</x>
+        <y>189</y>
+        <width>141</width>
         <height>81</height>
        </rect>
       </property>
@@ -1389,29 +1389,6 @@ QGroupBox::title {
         <string>+0.25</string>
        </property>
       </widget>
-     </widget>
-     <widget class="QPushButton" name="button_GoToZeroPosition_Hourglass">
-      <property name="geometry">
-       <rect>
-        <x>550</x>
-        <y>100</y>
-        <width>121</width>
-        <height>81</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>19</pointsize>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(146, 255, 210);</string>
-      </property>
-      <property name="text">
-       <string>Go to 0
-Position</string>
-      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="Tab_Hourglass_Wheel">

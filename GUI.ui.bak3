@@ -1390,7 +1390,7 @@ QGroupBox::title {
        </property>
       </widget>
      </widget>
-     <widget class="QPushButton" name="button_GoToZeroPosition_Hourglass">
+     <widget class="QPushButton" name="button_Stop_Hourglass_2">
       <property name="geometry">
        <rect>
         <x>550</x>

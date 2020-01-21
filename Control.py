@@ -45,8 +45,8 @@ def serial_ports():
 
 def openPort():
     try:
-        s = serial.Serial("/dev/ttyUSB0", 57600,parity=serial.PARITY_EVEN, timeout=0.05)  #57600
-        print('Serial port',"COM7",'connected.')
+        s = serial.Serial("COM5", 57600,parity=serial.PARITY_EVEN, timeout=0.05,writeTimeout=0.05)  #57600
+        print('Serial port',"COM5",'connected.')
                 
     except serial.SerialException:
         print('Error opening the port ',"COM7")
@@ -54,8 +54,7 @@ def openPort():
     return s
     
 
-
-def writereadCOM(s, motor="0",comand="12",dataNo="00", dataIN="" ):
+def writereadCOM_IM_OUT(s, motor="0",comand="12",dataNo="00", dataIN="",numberchar = 20 ):
     
     
     str1="\x01"+motor+comand+"\x02"+dataNo+dataIN+"\x03"
@@ -64,13 +63,13 @@ def writereadCOM(s, motor="0",comand="12",dataNo="00", dataIN="" ):
     CRC2=format(sum([ord(ss) for ss in str1[1:]]),'02X')[-2:]
     # print(CRC2[-2:])
     cmd2=str1.encode("iso-8859-15")+CRC2.encode("iso-8859-15")
-    print(motor+"-"+comand+"-"+dataNo+"-"+dataIN)
+    # print(motor+"-"+comand+"-"+dataNo+"-"+dataIN)
     # print(type(cmd2))
    
     s.write(cmd2)
-    data=s.read(25)
+    data=s.read(numberchar)
     s.flushInput()
-    print(data)
+    # print(data)
     # data=data[3:-3]
     # print(data)
     # if data==b'':
@@ -78,7 +77,44 @@ def writereadCOM(s, motor="0",comand="12",dataNo="00", dataIN="" ):
 
     try:
         bres="{:032b}".format(int((data[3:-3]).decode('utf-8'),16))
-        data=data[1:-2]
+        data=data[2:-3]
+        # print(format(sum(ss for ss in data),'02X')[-2:])
+        print(bres,end=" ")
+        lres = len(bres)
+        bres = ' '.join([bres[i:(i + 4)] for i in range(0, lres, 4)])
+        # print(bres)
+    except:
+        # bres="11111111111111111111111111111111"
+        print(data)
+        print("Error decode")
+    # print(data,end=" ")
+    return data
+    # print("----------")
+
+def writereadCOM(s, motor="0",comand="12",dataNo="00", dataIN="",numberchar = 20 ):
+    
+    
+    str1="\x01"+motor+comand+"\x02"+dataNo+dataIN+"\x03"
+    # print(str1.encode("utf-8"))
+      
+    CRC2=format(sum([ord(ss) for ss in str1[1:]]),'02X')[-2:]
+    # print(CRC2[-2:])
+    cmd2=str1.encode("iso-8859-15")+CRC2.encode("iso-8859-15")
+    # print(motor+"-"+comand+"-"+dataNo+"-"+dataIN)
+    # print(type(cmd2))
+   
+    s.write(cmd2)
+    data=s.read(numberchar)
+    s.flushInput()
+    # print(data)
+    # data=data[3:-3]
+    # print(data)
+    # if data==b'':
+        # data=b'FFFFFFFF'
+
+    try:
+        bres="{:032b}".format(int((data[3:-3]).decode('utf-8'),16))
+        data=data[2:-3]
         # print(format(sum(ss for ss in data),'02X')[-2:])
         # print(bres)
         lres = len(bres)
@@ -88,7 +124,8 @@ def writereadCOM(s, motor="0",comand="12",dataNo="00", dataIN="" ):
         # bres="11111111111111111111111111111111"
         print(data)
         print("Error decode")
-   
+    print(data,end=" ")
+    return data
     # print("----------")
 
 if __name__ == "__main__":
@@ -97,7 +134,7 @@ if __name__ == "__main__":
     # print(serial.tools.list_ports -v)
     
     # print([port for port in serial.tools.list_ports.comports() if port[2] != 'n/a'])
-    print(serial_ports())
+    # print(serial_ports())
     
    
     ser=openPort()
@@ -109,16 +146,28 @@ if __name__ == "__main__":
     # writereadCOM("0","12","60","")
     # writereadCOM(ser,"0","12","80","")
     # writereadCOM(ser,"0","90","10","1EA5") #Enables input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
-    # writereadCOM(ser,"0","90","00","1EA5") #Disabled input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
+    writereadCOM(ser,"0","90","00","1EA5") #Disabled input/analog input/pulse train inputs. EMG, LSP and LSN is ON 
+    writereadCOM(ser,"0","90","03","1EA5")
     # writereadCOM(ser,"0","8B","00","0000")
-    # writereadCOM(ser,"0","8B","00","0002")
+    writereadCOM(ser,"0","8B","00","0002")
     # writereadCOM(ser,"0","8B","00","0001")
-    # writereadCOM(ser,"0","A0","11","00000300")
+    writereadCOM(ser,"0","A0","11","00000300")
     # writereadCOM(ser,"0","A0","11","00000255")
-    # writereadCOM(ser,"0","A0","10","0010")
-    # writereadCOM(ser,"0","0","10","0100")
+    writereadCOM(ser,"0","A0","10","0100")
+    # writereadCOM(ser,"0","A0","10","0BB8")
     # writereadCOM(ser,"0","A0","10","00000255")
-    # writereadCOM(ser,"0","A0","13","00100000")
+    # writereadCOM(ser,"0","A0","13","00F00000")
+    # writereadCOM(ser,"0","A0","13","00F00000")
+    # writereadCOM(ser,"0","A0","13","1000967F")
+    # writereadCOM(ser,"0","A0","13","0098967F")
+    # writereadCOM(ser,"0","A0","13","00032000")
+    # writereadCOM(ser,"0","A0","13","00020000")
+    # writereadCOM(ser,"0","A0","13","00040000")
+    writereadCOM(ser,"0","A0","13","00980000")
+    # writereadCOM(ser,"0","A0","13","FF680000")
+    # writereadCOM(ser,"0","A0","13","FFFE0000")
+    # writereadCOM(ser,"0","A0","13","FFFFE000‬")
+    # writereadCOM(ser,"0","A0","13","00002000")
     # writereadCOM(ser,"0","05","09","")
     
     # writereadCOM(ser,"0","12","40","")
@@ -137,39 +186,59 @@ if __name__ == "__main__":
     # writereadCOM(ser,"0","84","0D","3000"+format(100,'04X'))
     # writereadCOM(ser,"0","84","0D","30000F01")# Write Par.No.13 JOG Speed
     # writereadCOM(ser,"0","84","28","300003E8")# Write Par.No.40 JOG acceleration/deceleration time constant
-    
-   
+    writereadCOM(ser,"0","92","00","00000000")
+    print("-")
+    print("      00           40             80               85               87               8E               8F ")
+ 
     i=0
-    
-    while i<1:
-        # print(strftime("%H:%M:%S +0000", gmtime()))
-        # writereadCOM(ser,"0","92","00","00000807")
-        # writereadCOM(ser,"0","92","00","00001007")
-        writereadCOM(ser,"0","01","80","")
-        writereadCOM(ser,"0","01","85","")
-        writereadCOM(ser,"0","01","8F","")
-        # writereadCOM(ser,"0","81","00","1EA5")
-        writereadCOM(ser,"0","01","80","")
-        writereadCOM(ser,"0","01","81","")
-        writereadCOM(ser,"0","01","82","")
-        # writereadCOM(ser,"0","01","83","")
-        # writereadCOM(ser,"0","01","84","")
+    try:
+        while i<100:
+            writereadCOM(ser,"0","12","00","",14)
+            writereadCOM(ser,"0","12","40","",14)
+            # writereadCOM(ser,"0","6C","01","",14)
+            writereadCOM(ser,"0","01","80","",18)
+            # writereadCOM(ser,"0","01","81","",18)
+            # writereadCOM(ser,"0","01","82","",18)
+            writereadCOM(ser,"0","01","85","",18)
+            writereadCOM(ser,"0","01","87","",18)
+            writereadCOM(ser,"0","01","8E","",18)
+            writereadCOM(ser,"0","01","8F","")
+            # writereadCOM(ser,"0","12","60","",14)
+            # writereadCOM(ser,"0","12","80","",14)
+            # writereadCOM_IM_OUT(ser,"0","12","C0","",14)
+            # writereadCOM_IM_OUT(ser,"0","12","80","",14)
+            print("-")
+            # print(strftime("%H:%M:%S +0000", gmtime()))
+            # writereadCOM(ser,"0","92","00","00000807")
+            # writereadCOM(ser,"0","92","00","00001007")
+            # writereadCOM(ser,"0","01","80","")
+            # writereadCOM(ser,"0","01","85","")
+            # writereadCOM(ser,"0","01","8F","")
+            # writereadCOM(ser,"0","81","00","1EA5")
+            # writereadCOM(ser,"0","01","80","")
+            # writereadCOM(ser,"0","01","81","")
+            # writereadCOM(ser,"0","01","82","")
+            # writereadCOM(ser,"0","01","83","")
+            # writereadCOM(ser,"0","01","84","")
+            
+            # writereadCOM(ser,"0","01","86","")#Servo motor speed
+            # writereadCOM(ser,"0","01","8E","")
+            # writereadCOM(ser,"0","01","8F","")
+            
+            
+            # writereadCOM(ser,"0","A0","10","00000255")
+            # writereadCOM(ser,"0","A0","11","00000255")
+            # writereadCOM(ser,"0","A0","10","00000200")
+            sleep(0.200)
+            # print(time())
+            # writereadCOM(ser,"0","01","81","")
+            i=i+1
+    except KeyboardInterrupt:
+        print(1)
+        # print("press control-c again to quit")
         
-        # writereadCOM(ser,"0","01","86","")#Servo motor speed
-        writereadCOM(ser,"0","01","8E","")
-        writereadCOM(ser,"0","01","8F","")
         
-        
-        # writereadCOM(ser,"0","A0","10","00000255")
-        # writereadCOM(ser,"0","A0","11","00000255")
-        # writereadCOM(ser,"0","A0","10","00000200")
-        sleep(0.200)
-        print(time())
-        # writereadCOM(ser,"0","01","81","")
-        i=i+1
-        
-        
-    
+    writereadCOM(ser,"0","8B","00","0000")
     
     ser.close()
     # writereadCOM("0","92","60","00010007")
