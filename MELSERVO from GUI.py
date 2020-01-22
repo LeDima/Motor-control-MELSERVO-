@@ -226,7 +226,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                                 print(3)
                                 if(time()<startTime_Hourglass+self.MainDict['HoldTime_Hourglass']):
                                     if(iteration2==0):
-                                        # self.Set_vibration_ON_OFF(self.MainDict['Vib_Hourglass'],self.MainDict['VibInt_Hourglass'])
+                                        self.Set_vibration_ON_OFF(self.MainDict['Vib_Hourglass'],self.MainDict['VibInt_Hourglass'])
                                         print("4",self.Move_Current_Position(-2*self.MainDict['Angle_Hourglass']*NM/(NL*360)-Backlash))
                                         self.msleep(200)
                                         iteration2=1
