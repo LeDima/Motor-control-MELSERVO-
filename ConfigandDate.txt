@@ -1,7 +1,7 @@
 {
   "SerialName": "COM5",
   "SerialSpeed": 57600,
-  "PeriodDate": 300,
+  "PeriodDate": 50,
   "CurrentMode": 1,
   "MRJ_Station_number": "0",
   "MRJ_type": "J2S-xCL",
@@ -12,7 +12,7 @@
   "VibInt_Wheel": 20,
   "Vib_Wheel": "OFF",
   "MotorSpeed_Hourglass": 1000,
-  "MotorSpeed_Hourglass_Oscillation": 30,
+  "MotorSpeed_Hourglass_Oscillation": 20,
   "MotorAcceleration_Hourglass": 1000,
   "VibInt_Hourglass": 20,
   "Vib_Hourglass": "OFF",

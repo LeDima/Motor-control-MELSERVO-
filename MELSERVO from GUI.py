@@ -88,6 +88,7 @@ class Thread_RS422_Communication(QtCore.QThread):
             Current_Position_MRJ=self.Get_Position_MRJ()
             Current_Speed_MRJ=self.Get_Speed_MRJ()
             Current_statuses_MRJ=self.Get_MRJ_statuses()
+            print(startTime,Current_Position_MRJ,Current_Speed_MRJ)
             self.signal_main.emit([Current_Position_MRJ,Current_Speed_MRJ,Current_statuses_MRJ])
             
             if self.mode=="Manual_mode":
@@ -155,10 +156,8 @@ class Thread_RS422_Communication(QtCore.QThread):
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
                     if Current_Speed_MRJ ==0:
                         self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0000",6)
-                        self.msleep(10)
                         self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0002",6)
-                        self.msleep(10)
-                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000000",6)
+                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
                         
                         MotorSpeed_Hourglass=self.MainDict['MotorSpeed_Hourglass']
                         MotorSpeed_Hourglass_Oscillation=self.MainDict['MotorSpeed_Hourglass_Oscillation']
@@ -225,87 +224,73 @@ class Thread_RS422_Communication(QtCore.QThread):
                         if Current_Speed_MRJ ==0:
                             if(iteration==0):
                                 print(1)
-                                self.Set_vibration_ON_OFF("OFF")
-                                value=self.Float_to_HEX_Position(ZeroPosition_Hourglass+NM/(2*NL)-Current_Position_MRJ+Angle_Hourglass*NM/(NL*360))
-                                print("Current_to_HalfCircle_Position =",value,"Start_Hourglass_rotation")
+                                # self.Set_vibration_ON_OFF("OFF")
                                 self.Set_Speed_MRJ(MotorSpeed_Hourglass)
-                                self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
-                                self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+                                print("Current_to_HalfCircle_Position =",self.Move_Current_Position(ZeroPosition_Hourglass+NM/(2*NL)-Current_Position_MRJ+Angle_Hourglass*NM/(NL*360)))
+                                self.msleep(100)
                                 iteration=1
                                 iteration2=0
                             elif(iteration==1):
                                 print(2)
                                 startTime_Hourglass=time()
+                                self.Set_Speed_MRJ(MotorSpeed_Hourglass_Oscillation)
                                 iteration=2
                                 print(startTime_Hourglass)
                             elif(iteration==2):
                                 print(3)
                                 if(time()<startTime_Hourglass+HoldTime_Hourglass):
                                     if(iteration2==0):
-                                        print(4)
-                                        self.Set_vibration_ON_OFF(self.MainDict['Vib_Hourglass'],self.MainDict['VibInt_Hourglass'])
-                                        value=self.Float_to_HEX_Position(-2*Angle_Hourglass*NM/(NL*360)-Backlash)
-                                        self.Set_Speed_MRJ(MotorSpeed_Hourglass_Oscillation)
-                                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
-                                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+                                        # self.Set_vibration_ON_OFF(self.MainDict['Vib_Hourglass'],self.MainDict['VibInt_Hourglass'])
+                                        print("4",self.Move_Current_Position(-2*Angle_Hourglass*NM/(NL*360)-Backlash))
+                                        self.msleep(200)
                                         iteration2=1
                                     elif(iteration2==1):
-                                        print(5)
-                                        value=self.Float_to_HEX_Position(2*Angle_Hourglass*NM/(NL*360)+Backlash)
-                                        # self.Set_Speed_MRJ(MotorSpeed_Hourglass_Oscillation)
-                                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
-                                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+                                        print("5",self.Move_Current_Position(2*Angle_Hourglass*NM/(NL*360)+Backlash))
+                                        self.msleep(200)
                                         iteration2=0
                                 else:
                                     print(6)
-                                    self.Set_vibration_ON_OFF("OFF")
-                                    value=self.Float_to_HEX_Position(ZeroPosition_Hourglass-Current_Position_MRJ-Angle_Hourglass*NM/(NL*360)-Backlash)
-                                    print("Current_to_Zero_Position =",value," GoToZeroPositio_Hourglass_rotation" )
+                                    # self.Set_vibration_ON_OFF("OFF")
                                     self.Set_Speed_MRJ(MotorSpeed_Hourglass)
-                                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
-                                    self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+                                    print("Current_to_Zero_Position =",self.Move_Current_Position(ZeroPosition_Hourglass-Current_Position_MRJ-Angle_Hourglass*NM/(NL*360)-Backlash))
+                                    self.msleep(100)
                                     iteration2=0
                                     iteration=3
                             elif(iteration==3):
                                 print(7)
                                 startTime_Hourglass=time()
                                 iteration=4
+                                self.Set_Speed_MRJ(MotorSpeed_Hourglass_Oscillation)
                                 print(startTime_Hourglass)
                             elif(iteration==4):
                                 print(8)
                                 if(time()<startTime_Hourglass+HoldTime_Hourglass):
                                     if(iteration2==0):
-                                        print(9)
-                                        self.Set_vibration_ON_OFF(self.MainDict['Vib_Hourglass'],self.MainDict['VibInt_Hourglass'])
-                                        value=self.Float_to_HEX_Position(+2*Angle_Hourglass*NM/(NL*360)+Backlash)
-                                        self.Set_Speed_MRJ(MotorSpeed_Hourglass_Oscillation)
-                                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
-                                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+                                        # self.Set_vibration_ON_OFF(self.MainDict['Vib_Hourglass'],self.MainDict['VibInt_Hourglass'])
+                                        print("9",self.Move_Current_Position(+2*Angle_Hourglass*NM/(NL*360)+Backlash))
+                                        self.msleep(200)
                                         iteration2=1
                                     elif(iteration2==1):
-                                        print(10)
-                                        value=self.Float_to_HEX_Position(-2*Angle_Hourglass*NM/(NL*360)-Backlash)
-                                        # self.Set_Speed_MRJ(MotorSpeed_Hourglass_Oscillation)
-                                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
-                                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+                                        print("10",self.Move_Current_Position(-2*Angle_Hourglass*NM/(NL*360)-Backlash))
+                                        self.msleep(200)
                                         iteration2=0
                                 else:
                                     print(11)
-                                    self.Set_vibration_ON_OFF("OFF")
+                                    # self.Set_vibration_ON_OFF("OFF")
                                     iteration2=0
                                     iteration=0
                                 
 
-                        else: print("Wait")
+                        else:
+                            # print("Wait")
+                            pass 
+                            
 
                     elif self.SetCommand=="GoToZeroPositio_Hourglass_rotation":
                         if Current_Speed_MRJ ==0:
                             self.Set_vibration_ON_OFF("OFF")
-                            value=self.Float_to_HEX_Position(ZeroPosition_Hourglass-Current_Position_MRJ)
-                            print("Current_to_Zero_Position =",value," GoToZeroPositio_Hourglass_rotation" )
                             self.Set_Speed_MRJ(MotorSpeed_Hourglass)
-                            self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
-                            self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+                            print("Current_to_Zero_Position =",self.Move_Current_Position(ZeroPosition_Hourglass-Current_Position_MRJ))
                             iteration2=0
                             iteration=0
                             self.SetCommand="Pass"
@@ -467,6 +452,13 @@ class Thread_RS422_Communication(QtCore.QThread):
             print("------")
                            
         return data
+    def Move_Current_Position(self,distanse=0.0):        
+        value=self.Float_to_HEX_Position(distanse)
+        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
+        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+        return value
+        
+        
     
     def Float_to_HEX_Position(self,value=0.0):
         if value<0:
