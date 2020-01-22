@@ -181,24 +181,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                         iteration=0
                         iteration2=0
                         # startTime_Hourglass=startTime
-                        pass
-                    # elif self.SetCommand=="Init":
-                    #     self.Set_vibration_ON_OFF("OFF")
-                    #     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000000",6)
-                    #     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0000",6)
-                    #     self.msleep(10)
-                    #     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0002",6)
-                    #     self.msleep(10)
-                    #     MotorSpeed_Hourglass=self.MainDict['MotorSpeed_Hourglass']
-                    #     MotorSpeed_Hourglass_Oscillation=self.MainDict['MotorSpeed_Hourglass_Oscillation']
-                    #     MotorAcceleration_Hourglass=self.MainDict['MotorAcceleration_Hourglass']
-                    #     VibInt_Hourglass=self.MainDict['VibInt_Hourglass']
-                    #     Vib_Hourglass=self.MainDict['Vib_Hourglass']
-                    #     ZeroPosition_Hourglass=self.MainDict['ZeroPosition_Hourglass']
-                    #     HoldTime_Hourglass=self.MainDict['HoldTime_Hourglass']
-                    #     Angle_Hourglass=self.MainDict['Angle_Hourglass']
-                    #     self.Set_Acceleration_MRJ(Angle_Hourglass)
-                    
+                        pass                    
                     elif self.SetCommand=="Start_Hourglass_rotation":
                         if Current_Speed_MRJ ==0:
                             if(iteration==0):
@@ -270,13 +253,9 @@ class Thread_RS422_Communication(QtCore.QThread):
                                     self.Set_vibration_ON_OFF("OFF")
                                     iteration2=0
                                     iteration=0
-                                
-
                         else:
                             # print("Wait")
                             pass 
-                            
-
                     elif self.SetCommand=="GoToZeroPositio_Hourglass_rotation":
                         if Current_Speed_MRJ ==0:
                             self.Set_vibration_ON_OFF("OFF")
@@ -291,10 +270,6 @@ class Thread_RS422_Communication(QtCore.QThread):
                             iteration=0
                             self.SetCommand="Pass"
                         else: print("Wait")
-
-                    # self.SetCommand="Pass"
-                    
-                    
                         
             elif self.mode=="Hourglass_Wheel_mode":
                 if self.Initiation == "NO":
@@ -330,10 +305,6 @@ class Thread_RS422_Communication(QtCore.QThread):
                     elif self.SetCommand=="Set_Speed_MRJ":
                         self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
                     self.SetCommand="Pass"
-                    
-                    
-                    pass
-
 
             else:
                 try:
@@ -455,7 +426,7 @@ class Thread_RS422_Communication(QtCore.QThread):
             value = format(int(distanse*131072),'08X')
         self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
         self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
-        return value
+        return "{:.2f}".format(distanse)
         
         
     
