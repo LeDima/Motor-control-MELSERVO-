@@ -11,14 +11,14 @@
   "MotorSpeed_Wheel": 487,
   "VibInt_Wheel": 20,
   "Vib_Wheel": "OFF",
-  "MotorSpeed_Hourglass": 500,
-  "MotorSpeed_Hourglass_Oscillation": 10,
+  "MotorSpeed_Hourglass": 1000,
+  "MotorSpeed_Hourglass_Oscillation": 5,
   "MotorAcceleration_Hourglass": 1000,
   "VibInt_Hourglass": 20,
   "Vib_Hourglass": "OFF",
   "ZeroPosition_Hourglass": 32258.28,
   "HoldTime_Hourglass": 10,
-  "Angle_Hourglass": 2.0,
+  "Angle_Hourglass": 0.0,
   "MotorSpeed_Manual": 501,
   "MotorAcceleration_Manual": 20000
 }

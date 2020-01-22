@@ -166,7 +166,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                         self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass'])
                         self.Set_Acceleration_MRJ(self.MainDict['MotorAcceleration_Hourglass'])
                         
-                        Current_to_HalfCircle_Position=self.MainDict['ZeroPosition_Hourglass']+self.MainDict['NM']/(2*self.MainDict['NL'])-Current_Position_MRJ
+                        Current_to_HalfCircle_Position=self.MainDict['ZeroPosition_Hourglass']+self.MainDict['NM']/(2.0*self.MainDict['NL'])-Current_Position_MRJ
                         print("Current_to_HalfCircle_Position =",Current_to_HalfCircle_Position)
 
                         Current_to_Zero_Position=self.MainDict['ZeroPosition_Hourglass']-Current_Position_MRJ
@@ -190,10 +190,10 @@ class Thread_RS422_Communication(QtCore.QThread):
                                 self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass'])
                                 print("Current_to_HalfCircle_Position =",
                                       self.Move_Current_Position(
-                                          self.MainDict['ZeroPosition_Hourglass']+
-                                          NM/(2*NL)-
-                                          Current_Position_MRJ+
-                                          self.MainDict['Angle_Hourglass']*NM/(NL*360)
+                                          self.MainDict['ZeroPosition_Hourglass']
+                                          +NM/(2.0*NL)
+                                          -Current_Position_MRJ
+                                          +self.MainDict['Angle_Hourglass']*NM/(NL*360.0)
                                           )
                                       )
                                 self.msleep(100)
@@ -202,7 +202,6 @@ class Thread_RS422_Communication(QtCore.QThread):
                             elif(iteration==1):
                                 print(2)
                                 startTime_Hourglass=time()
-                                self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass_Oscillation'])
                                 iteration=2
                                 print(startTime_Hourglass)
                             elif(iteration==2):
@@ -210,11 +209,25 @@ class Thread_RS422_Communication(QtCore.QThread):
                                 if(time()<startTime_Hourglass+self.MainDict['HoldTime_Hourglass']):
                                     if(iteration2==0):
                                         self.Set_vibration_ON_OFF(self.MainDict['Vib_Hourglass'],self.MainDict['VibInt_Hourglass'])
-                                        print("4",self.Move_Current_Position(-2*self.MainDict['Angle_Hourglass']*NM/(NL*360)-Backlash))
+                                        self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass_Oscillation'])
+                                        print("4",self.Move_Current_Position(self.MainDict['ZeroPosition_Hourglass']
+                                                                             +NM/(2.0*NL)
+                                                                             -self.MainDict['Angle_Hourglass']*NM/(NL*360.0)
+                                                                             -Backlash
+                                                                             -Current_Position_MRJ
+                                                                             )
+                                              )
                                         self.msleep(200)
                                         iteration2=1
                                     elif(iteration2==1):
-                                        print("5",self.Move_Current_Position(2*self.MainDict['Angle_Hourglass']*NM/(NL*360)+Backlash))
+                                        print("5",self.Move_Current_Position(self.MainDict['ZeroPosition_Hourglass']
+                                                                             +NM/(2.0*NL)
+                                                                             +self.MainDict['Angle_Hourglass']*NM/(NL*360.0)
+                                                                             +Backlash
+                                                                             -Current_Position_MRJ
+                                                                             )
+                                              )
+                                        # print("5",self.Move_Current_Position(2*self.MainDict['Angle_Hourglass']*NM/(NL*360)+Backlash))
                                         self.msleep(200)
                                         iteration2=0
                                 else:
@@ -223,8 +236,10 @@ class Thread_RS422_Communication(QtCore.QThread):
                                     self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass'])
                                     print("Current_to_Zero_Position =",
                                           self.Move_Current_Position(
-                                              self.MainDict['ZeroPosition_Hourglass']-
-                                              Current_Position_MRJ-self.MainDict['Angle_Hourglass']*NM/(NL*360)-Backlash
+                                              self.MainDict['ZeroPosition_Hourglass']
+                                              -Current_Position_MRJ
+                                              -self.MainDict['Angle_Hourglass']*NM/(NL*360.0)
+                                              -Backlash
                                               )
                                           )
                                     self.msleep(100)
@@ -234,18 +249,30 @@ class Thread_RS422_Communication(QtCore.QThread):
                                 print(7)
                                 startTime_Hourglass=time()
                                 iteration=4
-                                self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass_Oscillation'])
                                 print(startTime_Hourglass)
                             elif(iteration==4):
                                 print(8)
                                 if(time()<startTime_Hourglass+self.MainDict['HoldTime_Hourglass']):
                                     if(iteration2==0):
                                         self.Set_vibration_ON_OFF(self.MainDict['Vib_Hourglass'],self.MainDict['VibInt_Hourglass'])
-                                        print("9",self.Move_Current_Position(+2*self.MainDict['Angle_Hourglass']*NM/(NL*360)+Backlash))
+                                        self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass_Oscillation'])
+                                        print("9",self.Move_Current_Position(self.MainDict['ZeroPosition_Hourglass']
+                                                                             +self.MainDict['Angle_Hourglass']*NM/(NL*360.0)
+                                                                             +Backlash
+                                                                             -Current_Position_MRJ
+                                                                             )
+                                              )
+                                        # print("9",self.Move_Current_Position(+2*self.MainDict['Angle_Hourglass']*NM/(NL*360)+Backlash))
                                         self.msleep(200)
                                         iteration2=1
                                     elif(iteration2==1):
-                                        print("10",self.Move_Current_Position(-2*self.MainDict['Angle_Hourglass']*NM/(NL*360)-Backlash))
+                                        print("10",self.Move_Current_Position(self.MainDict['ZeroPosition_Hourglass']
+                                                                             -self.MainDict['Angle_Hourglass']*NM/(NL*360.0)
+                                                                             -Backlash
+                                                                             -Current_Position_MRJ
+                                                                             )
+                                              )
+                                        # print("10",self.Move_Current_Position(-2*self.MainDict['Angle_Hourglass']*NM/(NL*360)-Backlash))
                                         self.msleep(200)
                                         iteration2=0
                                 else:
