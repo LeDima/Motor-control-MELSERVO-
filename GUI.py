@@ -1246,7 +1246,7 @@ class Ui_MainWindow(object):
         self.lineEdit_Angle_Hourglass.setText(_translate("MainWindow", "10.5°"))
         self.button_Angle_Hourglass_m05.setText(_translate("MainWindow", "-0.5°"))
         self.button_Angle_Hourglass_p05.setText(_translate("MainWindow", "+0.5°"))
-        self.groupBoxSet_Acceleration_Hourglass.setTitle(_translate("MainWindow", "Set Acceleration, ms(300...2000)"))
+        self.groupBoxSet_Acceleration_Hourglass.setTitle(_translate("MainWindow", "Set Acceleration, ms(200...2000)"))
         self.lineEdit_Acceleration_Hourglass_IN.setText(_translate("MainWindow", "2000"))
         self.button_Acceleration_Hourglass_m100.setText(_translate("MainWindow", "-100"))
         self.button_Acceleration_Hourglass_m10.setText(_translate("MainWindow", "-10"))

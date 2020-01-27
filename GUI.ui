@@ -1145,7 +1145,7 @@ QGroupBox::title {
 }</string>
       </property>
       <property name="title">
-       <string>Set Acceleration, ms(300...2000)</string>
+       <string>Set Acceleration, ms(200...2000)</string>
       </property>
       <widget class="QLineEdit" name="lineEdit_Acceleration_Hourglass_IN">
        <property name="geometry">

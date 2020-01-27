@@ -30,7 +30,6 @@ class Thread_RS422_Communication(QtCore.QThread):
     signal_error = QtCore.pyqtSignal(str)
     def __init__(self, parent=None):
         QtCore.QThread.__init__(self, parent)
-        self.mode="Manual_mode"
         self.SetCommand="Pass"
         # self.Vibration="OFF"
         try:
@@ -188,6 +187,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                                 print(1)
                                 self.Set_vibration_ON_OFF("OFF")
                                 self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass'])
+                                self.Set_Acceleration_MRJ(self.MainDict['MotorAcceleration_Hourglass'])
                                 print("Current_to_HalfCircle_Position =",
                                       self.Move_Current_Position(
                                           self.MainDict['ZeroPosition_Hourglass']
@@ -223,11 +223,10 @@ class Thread_RS422_Communication(QtCore.QThread):
                                         print("5",self.Move_Current_Position(self.MainDict['ZeroPosition_Hourglass']
                                                                              +NM/(2.0*NL)
                                                                              +self.MainDict['Angle_Hourglass']*NM/(NL*360.0)
-                                                                             +Backlash
+                                                                             # +Backlash
                                                                              -Current_Position_MRJ
                                                                              )
                                               )
-                                        # print("5",self.Move_Current_Position(2*self.MainDict['Angle_Hourglass']*NM/(NL*360)+Backlash))
                                         self.msleep(200)
                                         iteration2=0
                                 else:
@@ -258,11 +257,10 @@ class Thread_RS422_Communication(QtCore.QThread):
                                         self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass_Oscillation'])
                                         print("9",self.Move_Current_Position(self.MainDict['ZeroPosition_Hourglass']
                                                                              +self.MainDict['Angle_Hourglass']*NM/(NL*360.0)
-                                                                             +Backlash
+                                                                             # +Backlash
                                                                              -Current_Position_MRJ
                                                                              )
                                               )
-                                        # print("9",self.Move_Current_Position(+2*self.MainDict['Angle_Hourglass']*NM/(NL*360)+Backlash))
                                         self.msleep(200)
                                         iteration2=1
                                     elif(iteration2==1):
@@ -272,7 +270,6 @@ class Thread_RS422_Communication(QtCore.QThread):
                                                                              -Current_Position_MRJ
                                                                              )
                                               )
-                                        # print("10",self.Move_Current_Position(-2*self.MainDict['Angle_Hourglass']*NM/(NL*360)-Backlash))
                                         self.msleep(200)
                                         iteration2=0
                                 else:
@@ -287,6 +284,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                         if Current_Speed_MRJ ==0:
                             self.Set_vibration_ON_OFF("OFF")
                             self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass'])
+                            self.Set_Acceleration_MRJ(self.MainDict['MotorAcceleration_Hourglass'])
                             print("Current_to_Zero_Position =",
                                   self.Move_Current_Position(
                                       self.MainDict['ZeroPosition_Hourglass']-
@@ -403,7 +401,7 @@ class Thread_RS422_Communication(QtCore.QThread):
         except:
             self.SerialName='None'
             print('System error')
-            self.mode = 0
+            self.mode=0
     
     def open_serial_port(self, serial_name: object) -> object:
         try:
@@ -799,8 +797,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         NL=self.Thread_RS422_Communication.MainDict['NL']
         NM=self.Thread_RS422_Communication.MainDict['NM']
         value = self.Thread_RS422_Communication.MainDict['MotorSpeed_Hourglass']+value
-        if value<=0:
-           value=0
+        if value<=100:
+           value=100
         elif value>=1500:
             value=1500
         self.ui.lineEdit_Speed_Hourglass_IN.setText("{:.1f}".format(value*NL/NM))
@@ -812,8 +810,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         NL=self.Thread_RS422_Communication.MainDict['NL']
         NM=self.Thread_RS422_Communication.MainDict['NM']
         value = self.Thread_RS422_Communication.MainDict['MotorSpeed_Hourglass_Oscillation']+value
-        if value<=0:
-           value=0
+        if value<=5:
+           value=5
         elif value>=300:
             value=300
         self.ui.lineEdit_Speed_Oscillation_Hourglass_IN.setText("{:.2f}".format(value*NL/NM))
@@ -829,7 +827,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             value=2000
         self.ui.lineEdit_Acceleration_Hourglass_IN.setText(str(value))
         self.Thread_RS422_Communication.MainDict['MotorAcceleration_Hourglass']=int(value)
-        self.Thread_RS422_Communication.SetCommand="Set_Acceleration_MRJ"
+        # self.Thread_RS422_Communication.SetCommand="Set_Acceleration_MRJ"
         print(value)
         
     def onVibInt_Hourglass_Button(self,value=0):

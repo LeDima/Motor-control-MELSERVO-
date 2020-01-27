@@ -8,6 +8,7 @@ Created on Wed Dec 11 09:53:37 2019
 import sys
 import json
 import glob
+import subprocess
 from time import gmtime, strftime, sleep, time
 import serial
 import serial.tools.list_ports
@@ -135,7 +136,7 @@ if __name__ == "__main__":
     
     # print([port for port in serial.tools.list_ports.comports() if port[2] != 'n/a'])
     # print(serial_ports())
-    
+    # result = subprocess.run(['devcon', 'hwids', '=usb'],capture_output=True, text=True)
    
     ser=openPort()
     
@@ -161,9 +162,9 @@ if __name__ == "__main__":
     # writereadCOM(ser,"0","A0","13","1000967F")
     # writereadCOM(ser,"0","A0","13","0098967F")
     # writereadCOM(ser,"0","A0","13","00032000")
-    # writereadCOM(ser,"0","A0","13","00020000")
+    writereadCOM(ser,"0","A0","13","00020000")
     # writereadCOM(ser,"0","A0","13","00040000")
-    writereadCOM(ser,"0","A0","13","00980000")
+    # writereadCOM(ser,"0","A0","13","00980000")
     # writereadCOM(ser,"0","A0","13","FF680000")
     # writereadCOM(ser,"0","A0","13","FFFE0000")
     # writereadCOM(ser,"0","A0","13","FFFFE000‬")
@@ -192,7 +193,7 @@ if __name__ == "__main__":
  
     i=0
     try:
-        while i<100:
+        while i<2:
             writereadCOM(ser,"0","12","00","",14)
             writereadCOM(ser,"0","12","40","",14)
             # writereadCOM(ser,"0","6C","01","",14)
