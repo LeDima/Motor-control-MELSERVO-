@@ -156,7 +156,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                     if Current_Speed_MRJ ==0:
                         self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0000",6)
                         self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0002",6)
-                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000007",6)
                         
                         NM=self.MainDict['NM']
                         NL=self.MainDict['NL']
@@ -165,7 +165,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                         self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Hourglass'])
                         self.Set_Acceleration_MRJ(self.MainDict['MotorAcceleration_Hourglass'])
                         
-                        Current_to_HalfCircle_Position=self.MainDict['ZeroPosition_Hourglass']+self.MainDict['NM']/(2.0*self.MainDict['NL'])-Current_Position_MRJ
+                        Current_to_HalfCircle_Position=self.MainDict['ZeroPosition_Hourglass']+NM/(2.0*NL)-Current_Position_MRJ
                         print("Current_to_HalfCircle_Position =",Current_to_HalfCircle_Position)
 
                         Current_to_Zero_Position=self.MainDict['ZeroPosition_Hourglass']-Current_Position_MRJ
@@ -302,34 +302,67 @@ class Thread_RS422_Communication(QtCore.QThread):
                     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
                     if Current_Speed_MRJ ==0:
                         self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0000",6)
-                        self.msleep(10)
                         self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0002",6)
-                        self.msleep(10)
-                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000000",6)
-                        # self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
-                        # self.Set_Acceleration_MRJ(self.MainDict['MotorAcceleration_Manual'])
+                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000007",6)
+                        
+                        NM=self.MainDict['NM']
+                        NL=self.MainDict['NL']
+                        Backlash=self.MainDict['Backlash']
+                        
+                        self.Set_Speed_MRJ(self.MainDict['MotorSpeed1_HourWheel'])
+                        self.Set_Acceleration_MRJ(500)
+                        
+                        # Current_to_HalfCircle_Position=self.MainDict['ZeroPosition_Hourglass']+NM/(2.0*NL)-Current_Position_MRJ
+                        # print("Current_to_HalfCircle_Position =",Current_to_HalfCircle_Position)
+
+                        # Current_to_Zero_Position=self.MainDict['ZeroPosition_Hourglass']-Current_Position_MRJ
+                        # print("Current_to_Zero_Position =",Current_to_Zero_Position)
                         self.Initiation="YES"
+                        self.SetCommand=="Pass"
+                        iteration=0
+                        iteration2=0
                 else:
                     if self.SetCommand=="Pass":
+                        iteration=0
+                        iteration2=0
                         pass
-                    # elif self.SetCommand=="Init":
-                    #     self.Set_vibration_ON_OFF("OFF")
-                    #     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000000",6)
-                    #     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0000",6)
-                    #     self.msleep(10)
-                    #     self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"8B","00","0002",6)
-                    #     self.msleep(10)
-                    #     self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
-                    #     self.Set_Acceleration_MRJ(self.MainDict['MotorAcceleration_Manual'])
-                    elif self.SetCommand=="Start_forward_rotation":
-                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010807",6)
-                    elif self.SetCommand=="Start_reverse_rotation":
-                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00011007",6)
-                    elif self.SetCommand=="Stop_rotation":
-                        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00010007",6)
-                    elif self.SetCommand=="Set_Speed_MRJ":
-                        self.Set_Speed_MRJ(self.MainDict['MotorSpeed_Wheel'])
-                    self.SetCommand="Pass"
+                    elif self.SetCommand=="Start_HourWheel_rotation":
+                        if Current_Speed_MRJ ==0:
+                            if(iteration==0):
+                                MotorSpeed1_HourWheel=self.MainDict['MotorSpeed1_HourWheel']
+                                MotorSpeed2_HourWheel=self.MainDict['MotorSpeed2_HourWheel']
+                                Angle1_HourWheel=self.MainDict['Angle1_HourWheel']
+                                Angle2_HourWheel=self.MainDict['Angle2_HourWheel']
+                                Start_Position=Current_Position_MRJ
+                                print(1)
+                                # self.Set_vibration_ON_OFF("OFF")
+                                self.Set_Speed_MRJ(MotorSpeed1_HourWheel)
+                                # self.Set_Acceleration_MRJ(500)
+                                print("Move to step 1 =",self.Move_Current_Position(Angle1_HourWheel*NM/(NL*360.0)))
+                                self.msleep(100)
+                                iteration=1
+                            elif(iteration==1):
+                                print(2)
+                                # self.Set_vibration_ON_OFF("OFF")
+                                self.Set_Speed_MRJ(MotorSpeed2_HourWheel)
+                                # self.Set_Acceleration_MRJ(500)
+                                print("Move to step 2 =",self.Move_Current_Position((Angle2_HourWheel-Angle1_HourWheel)*NM/(NL*360.0)))
+                                self.msleep(100)
+                                iteration=2
+                            elif(iteration==2):
+                                print(3)
+                                # self.Set_vibration_ON_OFF("OFF")
+                                self.Set_Speed_MRJ(MotorSpeed2_HourWheel)
+                                # self.Set_Acceleration_MRJ(500)
+                                print("Move to step 3 =",self.Move_Current_Position((360-Angle2_HourWheel)*NM/(NL*360.0)-Backlash))
+                                self.msleep(100)
+                                iteration=3
+                                self.SetCommand="Pass"
+                                
+                            
+                                
+                            
+
 
             else:
                 try:
@@ -385,6 +418,12 @@ class Thread_RS422_Communication(QtCore.QThread):
                          , 'ZeroPosition_Hourglass':0.0
                          , 'HoldTime_Hourglass':10
                          , 'Angle_Hourglass':1.5
+                         
+                         , 'MotorSpeed1_HourWheel':15
+                         , 'MotorSpeed2_HourWheel':500
+                         , 'Angle1_HourWheel':225
+                         , 'Angle2_HourWheel':405
+                         
                          
                          , 'MotorSpeed_Manual':100
                          , 'MotorAcceleration_Manual':1000
@@ -450,7 +489,7 @@ class Thread_RS422_Communication(QtCore.QThread):
         else:
             value = format(int(distanse*131072),'08X')
         self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"A0","13",value,6)
-        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000001",6)
+        self.write_and_read_MRJ(self.ser,self.MainDict['MRJ_Station_number'],"92","00","00000007",6)
         return "{:.2f}".format(distanse)
         
         
@@ -489,7 +528,7 @@ class Thread_RS422_Communication(QtCore.QThread):
             data = -(data & 0x80000000) | (data & 0x7fffffff)
         except:
             print("Except Get_Speed_MRJ")
-            data = 0
+            data = -1
         return data
     
     def Set_Acceleration_MRJ(self,Acceleration=1000):#Write the acceleration/deceleration time constant [ms] in hexadecimal
@@ -564,31 +603,34 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         
         self.ui.button_Speed_Hourglass_m100.clicked.connect(partial(self.onSpeed_Hourglass_Button,-100))
         self.ui.button_Speed_Hourglass_p100.clicked.connect(partial(self.onSpeed_Hourglass_Button,100))
-        
         self.ui.button_Speed_Oscillation_Hourglass_m5.clicked.connect(partial(self.onSpeed_Hourglass_Oscillation_Button,-5))
         self.ui.button_Speed_Oscillation_Hourglass_p5.clicked.connect(partial(self.onSpeed_Hourglass_Oscillation_Button,5))
-        
         self.ui.button_Acceleration_Hourglass_m10.clicked.connect(partial(self.onAcceleration_Hourglass_Button,-10))
         self.ui.button_Acceleration_Hourglass_m100.clicked.connect(partial(self.onAcceleration_Hourglass_Button,-100))
         self.ui.button_Acceleration_Hourglass_p10.clicked.connect(partial(self.onAcceleration_Hourglass_Button,10))
         self.ui.button_Acceleration_Hourglass_p100.clicked.connect(partial(self.onAcceleration_Hourglass_Button,100))
-        
         self.ui.button_VibInt_Hourglass_m1.clicked.connect(partial(self.onVibInt_Hourglass_Button,-1))
         self.ui.button_VibInt_Hourglass_m10.clicked.connect(partial(self.onVibInt_Hourglass_Button,-10))
         self.ui.button_VibInt_Hourglass_p1.clicked.connect(partial(self.onVibInt_Hourglass_Button,1))
         self.ui.button_VibInt_Hourglass_p10.clicked.connect(partial(self.onVibInt_Hourglass_Button,10))
         self.ui.comboBox_Vib_Hourglass.currentIndexChanged.connect(partial(self.onVibInt_Hourglass_Button,0))
-        
         self.ui.button_SetZeroPosition_Hourglass.clicked.connect(self.onSetZeroPosition_Hourglass)
         self.ui.button_GoToZeroPosition_Hourglass.clicked.connect(self.onGoToZeroPosition_Hourglass_Button)
-        
         self.ui.button_HoldTime_Hourglass_m10.clicked.connect(partial(self.onHoldTime_Hourglass_Button,-10))
         self.ui.button_HoldTime_Hourglass_p10.clicked.connect(partial(self.onHoldTime_Hourglass_Button,10))
-        
         self.ui.button_Angle_Hourglass_m05.clicked.connect(partial(self.onAngle_Hourglass_Button,-0.5))
         self.ui.button_Angle_Hourglass_p05.clicked.connect(partial(self.onAngle_Hourglass_Button,0.5))
-        
         self.ui.button_Start_Hourglass.clicked.connect(self.onStart_Hourglass_Button)
+        
+        self.ui.button_Speed1_HourWheel_m5.clicked.connect(partial(self.onSpeed1_HourWheel_Button,-5))
+        self.ui.button_Speed1_HourWheel_p5.clicked.connect(partial(self.onSpeed1_HourWheel_Button,5))
+        self.ui.button_Speed2_HourWheel_m100.clicked.connect(partial(self.onSpeed2_HourWheel_Button,-100))
+        self.ui.button_Speed2_HourWheel_p100.clicked.connect(partial(self.onSpeed2_HourWheel_Button,100))
+        self.ui.button_Angle1_HourWheel_m5.clicked.connect(partial(self.onAngle1_HourWheel_Button,-5))
+        self.ui.button_Angle1_HourWheel_p5.clicked.connect(partial(self.onAngle1_HourWheel_Button,5))
+        self.ui.button_Angle2_HourWheel_m5.clicked.connect(partial(self.onAngle2_HourWheel_Button,-5))
+        self.ui.button_Angle2_HourWheel_p5.clicked.connect(partial(self.onAngle2_HourWheel_Button,5))
+        self.ui.button_Start_HourWheel.clicked.connect(self.onStart_HourWheel_Button)
         
         self.ui.button_Backlash_m01.clicked.connect(partial(self.onBacklash_Button,-0.1))
         self.ui.button_Backlash_m001.clicked.connect(partial(self.onBacklash_Button,-0.01))
@@ -658,7 +700,15 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             self.ui.lineEdit_VibInt_Hourglass.setText(str(self.Thread_RS422_Communication.MainDict['VibInt_Hourglass']))
             self.ui.lineEdit_HoldTime_Hourglass.setText(str(self.Thread_RS422_Communication.MainDict['HoldTime_Hourglass']))
             self.ui.lineEdit_Angle_Hourglass.setText("{:.1f}°".format(self.Thread_RS422_Communication.MainDict['Angle_Hourglass']))
-
+            
+            self.ui.button_Speed1_HourWheel_m5.setText( "{:.2f}".format(-5*NL/NM))
+            self.ui.button_Speed1_HourWheel_p5.setText( "+{:.2f}".format(5*NL/NM))
+            self.ui.lineEdit_Speed1_HourWheel_IN.setText("{:.2f}".format(self.Thread_RS422_Communication.MainDict['MotorSpeed1_HourWheel']*NL/NM))
+            self.ui.button_Speed2_HourWheel_m100.setText( "{:.1f}".format(-100*NL/NM))
+            self.ui.button_Speed2_HourWheel_p100.setText( "+{:.1f}".format(100*NL/NM))
+            self.ui.lineEdit_Speed2_HourWheel_IN.setText("{:.1f}".format(self.Thread_RS422_Communication.MainDict['MotorSpeed2_HourWheel']*NL/NM))
+            self.ui.lineEdit_Angle1_HourWheel.setText("{:.0f}°".format(self.Thread_RS422_Communication.MainDict['Angle1_HourWheel']))
+            self.ui.lineEdit_Angle2_HourWheel.setText("{:.0f}°".format(self.Thread_RS422_Communication.MainDict['Angle2_HourWheel']))
             # print(self.Thread_RS422_Communication.MainDict['Angle_Hourglass']*NL*360/NM)
             
             
@@ -720,7 +770,9 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             
         print(index)
         pass
-        
+    
+    # ---- Settings Menu
+    
     def onBacklash_Button(self,value=0.0):
         value = self.Thread_RS422_Communication.MainDict['Backlash']+value
         if value<=0:
@@ -730,21 +782,19 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui.lineEdit_Backlash_IN.setText("{:.2f}".format(value))
         self.Thread_RS422_Communication.MainDict['Backlash']=round(value,2)
         print(value)
-        
     def onNL_NM_change(self):
         print("xcxzcx")
         self.Thread_RS422_Communication.MainDict['NM']=self.ui.spinBox_NM.value()
         self.Thread_RS422_Communication.MainDict['NL']=self.ui.spinBox_NL.value()        
-        
+    
+    # ---- Manual Menu
+    
     def onST1_ON_Button(self):
         self.Thread_RS422_Communication.SetCommand="Start_forward_rotation"
-        
     def onST2_ON_Button(self):
         self.Thread_RS422_Communication.SetCommand="Start_reverse_rotation"
-    
     def onST12_OFF_Button(self):
         self.Thread_RS422_Communication.SetCommand="Stop_rotation"
-        
     def onSpeed_Button(self,value=0):
         value = self.Thread_RS422_Communication.MainDict['MotorSpeed_Manual']+value
         if value<=0:
@@ -755,7 +805,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.MainDict['MotorSpeed_Manual']=int(value)
         self.Thread_RS422_Communication.SetCommand="Set_Speed_MRJ"
         print(value)
-        
     def onAcceleration_Button(self,value=0):
         value = self.Thread_RS422_Communication.MainDict['MotorAcceleration_Manual']+value
         if value<=500:
@@ -766,7 +815,9 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.MainDict['MotorAcceleration_Manual']=int(value)
         self.Thread_RS422_Communication.SetCommand="Set_Acceleration_MRJ"
         print(value)
-        
+    
+    # ---- Wheel Menu
+    
     def onSpeed_Wheel_Button(self,value=0):
         NL=self.Thread_RS422_Communication.MainDict['NL']
         NM=self.Thread_RS422_Communication.MainDict['NM']
@@ -779,7 +830,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.MainDict['MotorSpeed_Wheel']=value
         self.Thread_RS422_Communication.SetCommand="Set_Speed_MRJ"
         print(value)
-        
     def onVibInt_Wheel_Button(self,value=0):
         value = self.Thread_RS422_Communication.MainDict['VibInt_Wheel']+value
         if value<=0:
@@ -792,7 +842,9 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.MainDict['Vib_Wheel']=self.ui.comboBox_Vib_Wheel.currentText()
         self.Thread_RS422_Communication.SetCommand="Set_Vibration"
         print(value)
-        
+    
+    # ---- Hourglass Menu
+    
     def onSpeed_Hourglass_Button(self,value=0):
         NL=self.Thread_RS422_Communication.MainDict['NL']
         NM=self.Thread_RS422_Communication.MainDict['NM']
@@ -805,7 +857,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.MainDict['MotorSpeed_Hourglass']=value
         # self.Thread_RS422_Communication.SetCommand="Set_Speed_MRJ"
         print(value)
-        
     def onSpeed_Hourglass_Oscillation_Button(self,value=0):
         NL=self.Thread_RS422_Communication.MainDict['NL']
         NM=self.Thread_RS422_Communication.MainDict['NM']
@@ -818,7 +869,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.MainDict['MotorSpeed_Hourglass_Oscillation']=value
         # self.Thread_RS422_Communication.SetCommand="Set_Speed_MRJ"
         print(value)
-        
     def onAcceleration_Hourglass_Button(self,value=0):
         value = self.Thread_RS422_Communication.MainDict['MotorAcceleration_Hourglass']+value
         if value<=200:
@@ -829,7 +879,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.MainDict['MotorAcceleration_Hourglass']=int(value)
         # self.Thread_RS422_Communication.SetCommand="Set_Acceleration_MRJ"
         print(value)
-        
     def onVibInt_Hourglass_Button(self,value=0):
         value = self.Thread_RS422_Communication.MainDict['VibInt_Hourglass']+value
         if value<=0:
@@ -842,15 +891,12 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.Thread_RS422_Communication.MainDict['Vib_Hourglass']=self.ui.comboBox_Vib_Hourglass.currentText()
         # self.Thread_RS422_Communication.SetCommand="Set_Vibration"
         print(value)
-        
     def onSetZeroPosition_Hourglass(self):
         print(self.ui.lineEdit_Position.text())
         self.Thread_RS422_Communication.MainDict['ZeroPosition_Hourglass']=float(self.ui.lineEdit_Position.text())
-        
     def onGoToZeroPosition_Hourglass_Button(self):
         self.Thread_RS422_Communication.SetCommand="GoToZeroPositio_Hourglass_rotation"
         pass
-        
     def onAngle_Hourglass_Button(self,value=0.0):
         value = self.Thread_RS422_Communication.MainDict['Angle_Hourglass']+value
         if value<=0:
@@ -860,7 +906,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui.lineEdit_Angle_Hourglass.setText("{:.1f}°".format(value))
         self.Thread_RS422_Communication.MainDict['Angle_Hourglass']=value
         print(value)
-        
     def onHoldTime_Hourglass_Button(self,value=0):
         value = self.Thread_RS422_Communication.MainDict['HoldTime_Hourglass']+value
         if value<=10:
@@ -873,8 +918,54 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     def onStart_Hourglass_Button(self):
         self.Thread_RS422_Communication.SetCommand="Start_Hourglass_rotation"
         pass
-
-        
+    
+    # ---- Hourglass-Wheel Menu
+    
+    def onSpeed1_HourWheel_Button(self,value=0):
+        NL=self.Thread_RS422_Communication.MainDict['NL']
+        NM=self.Thread_RS422_Communication.MainDict['NM']
+        value = self.Thread_RS422_Communication.MainDict['MotorSpeed1_HourWheel']+value
+        if value<=5:
+           value=5
+        elif value>=100:
+            value=100
+        self.ui.lineEdit_Speed1_HourWheel_IN.setText("{:.2f}".format(value*NL/NM))
+        self.Thread_RS422_Communication.MainDict['MotorSpeed1_HourWheel']=value
+        # self.Thread_RS422_Communication.SetCommand="Set_Speed_MRJ"
+        print(value)
+    def onSpeed2_HourWheel_Button(self,value=0):
+        NL=self.Thread_RS422_Communication.MainDict['NL']
+        NM=self.Thread_RS422_Communication.MainDict['NM']
+        value = self.Thread_RS422_Communication.MainDict['MotorSpeed2_HourWheel']+value
+        if value<=100:
+           value=100
+        elif value>=1500:
+            value=1500
+        self.ui.lineEdit_Speed2_HourWheel_IN.setText("{:.2f}".format(value*NL/NM))
+        self.Thread_RS422_Communication.MainDict['MotorSpeed2_HourWheel']=value
+        # self.Thread_RS422_Communication.SetCommand="Set_Speed_MRJ"
+        print(value)
+    def onAngle1_HourWheel_Button(self,value=0):
+        value = self.Thread_RS422_Communication.MainDict['Angle1_HourWheel']+value
+        if value<=180:
+           value=180
+        elif value>=250:
+            value=250
+        self.ui.lineEdit_Angle1_HourWheel.setText("{:.0f}°".format(value))
+        self.Thread_RS422_Communication.MainDict['Angle1_HourWheel']=value
+        print(value)
+    def onAngle2_HourWheel_Button(self,value=0):
+        value = self.Thread_RS422_Communication.MainDict['Angle2_HourWheel']+value
+        if value<=360:
+           value=360
+        elif value>=420:
+            value=420
+        self.ui.lineEdit_Angle2_HourWheel.setText("{:.0f}°".format(value))
+        self.Thread_RS422_Communication.MainDict['Angle2_HourWheel']=value
+        print(value)
+    def onStart_HourWheel_Button(self):
+        self.Thread_RS422_Communication.SetCommand="Start_HourWheel_rotation"
+        pass
         
     def SaveDate(self,value=0):
         

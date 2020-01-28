@@ -1,13 +1,13 @@
 {
   "SerialName": "COM5",
   "SerialSpeed": 57600,
-  "PeriodDate": 50,
-  "CurrentMode": 1,
+  "PeriodDate": 200,
+  "CurrentMode": 2,
   "MRJ_Station_number": "0",
   "MRJ_type": "J2S-xCL",
   "NL": 1,
   "NM": 50,
-  "Backlash": 0.0,
+  "Backlash": 0.5,
   "MotorSpeed_Wheel": 487,
   "VibInt_Wheel": 20,
   "Vib_Wheel": "OFF",
@@ -19,6 +19,10 @@
   "ZeroPosition_Hourglass": 32258.28,
   "HoldTime_Hourglass": 10,
   "Angle_Hourglass": 2.0,
-  "MotorSpeed_Manual": 501,
+  "MotorSpeed1_HourWheel": 100,
+  "MotorSpeed2_HourWheel": 200,
+  "Angle1_HourWheel": 180,
+  "Angle2_HourWheel": 380,
+  "MotorSpeed_Manual": 1,
   "MotorAcceleration_Manual": 20000
 }
