@@ -311,7 +311,6 @@ class Thread_RS422_Communication(QtCore.QThread):
                         
                         self.Set_Speed_MRJ(self.MainDict['MotorSpeed1_HourWheel'])
                         self.Set_Acceleration_MRJ(500)
-                        
                         # Current_to_HalfCircle_Position=self.MainDict['ZeroPosition_Hourglass']+NM/(2.0*NL)-Current_Position_MRJ
                         # print("Current_to_HalfCircle_Position =",Current_to_HalfCircle_Position)
 
@@ -333,12 +332,12 @@ class Thread_RS422_Communication(QtCore.QThread):
                                 MotorSpeed2_HourWheel=self.MainDict['MotorSpeed2_HourWheel']
                                 Angle1_HourWheel=self.MainDict['Angle1_HourWheel']
                                 Angle2_HourWheel=self.MainDict['Angle2_HourWheel']
-                                Start_Position=Current_Position_MRJ
+                                Start_Position=self.MainDict['ZeroPosition_HourWheel']
                                 print(1)
                                 # self.Set_vibration_ON_OFF("OFF")
                                 self.Set_Speed_MRJ(MotorSpeed1_HourWheel)
                                 # self.Set_Acceleration_MRJ(500)
-                                print("Move to step 1 =",self.Move_Current_Position(Angle1_HourWheel*NM/(NL*360.0)))
+                                print("Move to step 1 =",self.Move_Current_Position(Start_Position-Current_Position_MRJ+Angle1_HourWheel*NM/(NL*360.0)))
                                 self.msleep(100)
                                 iteration=1
                             elif(iteration==1):
@@ -356,6 +355,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                                 # self.Set_Acceleration_MRJ(500)
                                 print("Move to step 3 =",self.Move_Current_Position((360-Angle2_HourWheel)*NM/(NL*360.0)-Backlash))
                                 self.msleep(100)
+                                self.MainDict['ZeroPosition_HourWheel']=NM/NL+self.MainDict['ZeroPosition_HourWheel']
                                 iteration=3
                                 self.SetCommand="Pass"
                                 
@@ -398,13 +398,13 @@ class Thread_RS422_Communication(QtCore.QThread):
         except (OSError, IOError):
             NewMainDict={'SerialName':'COM5'
                          , 'SerialSpeed':57600
-                         , 'PeriodDate':50
+                         , 'PeriodDate':200
                          , 'CurrentMode': 0
                          , 'MRJ_Station_number':'0'
                          , 'MRJ_type':'J2S-xCL'
                          , 'NL':1
                          , 'NM':50
-                         , 'Backlash':0.20
+                         , 'Backlash':0.00
                          
                          , 'MotorSpeed_Wheel':100
                          , 'VibInt_Wheel':20
@@ -423,6 +423,7 @@ class Thread_RS422_Communication(QtCore.QThread):
                          , 'MotorSpeed2_HourWheel':500
                          , 'Angle1_HourWheel':225
                          , 'Angle2_HourWheel':405
+                         , 'ZeroPosition_HourWheel':0.0
                          
                          
                          , 'MotorSpeed_Manual':100
@@ -631,6 +632,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui.button_Angle2_HourWheel_m5.clicked.connect(partial(self.onAngle2_HourWheel_Button,-5))
         self.ui.button_Angle2_HourWheel_p5.clicked.connect(partial(self.onAngle2_HourWheel_Button,5))
         self.ui.button_Start_HourWheel.clicked.connect(self.onStart_HourWheel_Button)
+        self.ui.button_SetZeroPosition_HourWheel.clicked.connect(self.onSetZeroPosition_HourWheel)
         
         self.ui.button_Backlash_m01.clicked.connect(partial(self.onBacklash_Button,-0.1))
         self.ui.button_Backlash_m001.clicked.connect(partial(self.onBacklash_Button,-0.01))
@@ -742,7 +744,10 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui.lineEdit_Speed.setText(str(s[1]))
         # print(s)
         
-        if((s[2]=="00010807")or(s[1]>0)):
+        if(s[2]=="00000000"):
+            self.ui.lineEdit_Statuses.setText("ERROR")
+            self.ui.lineEdit_Statuses.setStyleSheet("QLineEdit { background-color: red;border: 2px solid green;border-radius: 15px;}")
+        elif((s[2]=="00010807")or(s[1]>0)):
             self.ui.lineEdit_Statuses.setText("Rotation >")
             self.ui.lineEdit_Statuses.setStyleSheet("QLineEdit { background-color: green;border: 2px solid green;border-radius: 15px;}")
         elif((s[2]=="00011007")or(s[1]<0)):
@@ -966,6 +971,9 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     def onStart_HourWheel_Button(self):
         self.Thread_RS422_Communication.SetCommand="Start_HourWheel_rotation"
         pass
+    def onSetZeroPosition_HourWheel(self):
+        print(self.ui.lineEdit_Position.text())
+        self.Thread_RS422_Communication.MainDict['ZeroPosition_HourWheel']=float(self.ui.lineEdit_Position.text())
         
     def SaveDate(self,value=0):
         

@@ -1852,6 +1852,28 @@ QGroupBox::title {
        <string>Start Hourglass-Wheel rotation</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="button_SetZeroPosition_HourWheel">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>190</y>
+        <width>181</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>19</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(146, 255, 210);</string>
+      </property>
+      <property name="text">
+       <string>Set 0 Position</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="Tab_Manual">
      <attribute name="title">
